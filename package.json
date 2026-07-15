@@ -1,1 +1,8 @@
-
+{
+  "name": "get-it-together",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend start",
+    "build:frontend": "npm --prefix frontend run build"
+  }
+}

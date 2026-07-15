@@ -1,0 +1,25 @@
+<div class="form-page">
+  <div class="form-card card">
+    <p class="eyebrow">New identity</p>
+    <h1>Who are you becoming?</h1>
+    <p class="subtitle">Identities are the "I am a ___" statements your habits reinforce.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label class="field">
+        <span>Statement</span>
+        <input type="text" formControlName="statement" placeholder="I am a runner" />
+      </label>
+
+      @if (errorMessage()) {
+        <p class="error-text">{{ errorMessage() }}</p>
+      }
+
+      <div class="actions">
+        <a routerLink="/" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn" [disabled]="form.invalid || submitting()">
+          {{ submitting() ? 'Saving…' : 'Create identity' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<div class="form-page">
+  <div class="form-card card">
+    <p class="eyebrow">New habit</p>
+    <h1>Add a habit</h1>
+    <p class="subtitle">Small, repeatable actions that build the identity.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label class="field">
+        <span>Name</span>
+        <input type="text" formControlName="name" placeholder="Run 20 minutes" />
+      </label>
+
+      <label class="field">
+        <span>Frequency</span>
+        <select formControlName="frequencyType">
+          <option value="Daily">Daily</option>
+          <option value="TimesPerWeek">A few times a week</option>
+          <option value="Weekly">Weekly</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Target per week</span>
+        <input type="number" formControlName="targetPerWeek" min="1" max="7" />
+      </label>
+
+      @if (errorMessage()) {
+        <p class="error-text">{{ errorMessage() }}</p>
+      }
+
+      <div class="actions">
+        <a routerLink="/" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn" [disabled]="form.invalid || submitting()">
+          {{ submitting() ? 'Saving…' : 'Create habit' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
