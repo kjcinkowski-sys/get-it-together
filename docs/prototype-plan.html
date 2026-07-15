@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prototype Plan — Get-It-Together</title>
+<meta name="description" content="Implementation plan to take get-it-together from backend scaffold to a testable prototype by July 31." />
+<style>
+  :root {
+    --bg: #f3f5f4;
+    --surface: #ffffff;
+    --surface-2: #eaeeec;
+    --ink: #1c2521;
+    --muted: #5c6a63;
+    --faint: #8a978f;
+    --accent: #2f6f5e;
+    --accent-ink: #ffffff;
+    --accent-warm: #b5652f;
+    --accent-warm-soft: #f3e2d3;
+    --line: #dbe0dc;
+    --code-bg: #eef1ef;
+    --shadow: 0 1px 2px rgba(28,37,33,0.06), 0 8px 24px rgba(28,37,33,0.05);
+
+    --font-display: Charter, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10130f;
+      --surface: #191e1a;
+      --surface-2: #212822;
+      --ink: #e7ece8;
+      --muted: #93a39a;
+      --faint: #647069;
+      --accent: #5fb89e;
+      --accent-ink: #0b1310;
+      --accent-warm: #e0a460;
+      --accent-warm-soft: #3a2c1c;
+      --line: #2a332d;
+      --code-bg: #1d2420;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10130f;
+    --surface: #191e1a;
+    --surface-2: #212822;
+    --ink: #e7ece8;
+    --muted: #93a39a;
+    --faint: #647069;
+    --accent: #5fb89e;
+    --accent-ink: #0b1310;
+    --accent-warm: #e0a460;
+    --accent-warm-soft: #3a2c1c;
+    --line: #2a332d;
+    --code-bg: #1d2420;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #f3f5f4;
+    --surface: #ffffff;
+    --surface-2: #eaeeec;
+    --ink: #1c2521;
+    --muted: #5c6a63;
+    --faint: #8a978f;
+    --accent: #2f6f5e;
+    --accent-ink: #ffffff;
+    --accent-warm: #b5652f;
+    --accent-warm-soft: #f3e2d3;
+    --line: #dbe0dc;
+    --code-bg: #eef1ef;
+    --shadow: 0 1px 2px rgba(28,37,33,0.06), 0 8px 24px rgba(28,37,33,0.05);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 4vw, 2.5rem) 6rem;
+  }
+
+  /* ---------- Header ---------- */
+  header.hero {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding-bottom: 2.25rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    line-height: 1.12;
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .dek {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 60ch;
+    margin: 0;
+  }
+
+  /* ---------- At-a-glance stat strip ---------- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 2.75rem;
+    box-shadow: var(--shadow);
+  }
+  .stat {
+    background: var(--surface);
+    padding: 1.1rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .stat .label {
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 600;
+  }
+  .stat .value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .stat .value.accent { color: var(--accent); }
+
+  /* ---------- Section rhythm ---------- */
+  section { margin-bottom: 3rem; }
+  section:last-of-type { margin-bottom: 0; }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    margin: 0 0 0.25rem;
+    text-wrap: balance;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    color: var(--faint);
+    font-weight: 500;
+    margin-right: 0.5rem;
+    font-size: 0.85em;
+  }
+  .section-intro {
+    color: var(--muted);
+    margin: 0 0 1.25rem;
+    max-width: 68ch;
+  }
+
+  p { max-width: 68ch; }
+  ul, ol { padding-left: 1.3rem; max-width: 68ch; }
+  li { margin-bottom: 0.45rem; }
+  li:last-child { margin-bottom: 0; }
+  strong { font-weight: 650; }
+
+  code, .mono {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+  }
+
+  /* ---------- Decision cards ---------- */
+  .decisions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.85rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .decisions li {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    margin: 0;
+    box-shadow: var(--shadow);
+  }
+  .decisions .k {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 650;
+    margin-bottom: 0.35rem;
+  }
+  .decisions .v { color: var(--ink); font-size: 0.94rem; }
+
+  .flag {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    background: var(--accent-warm-soft);
+    border: 1px solid color-mix(in srgb, var(--accent-warm) 35%, var(--line));
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    margin-top: 1rem;
+  }
+  .flag .dot {
+    flex: none;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--accent-warm);
+    margin-top: 0.45rem;
+  }
+  .flag p { margin: 0; color: var(--ink); font-size: 0.94rem; max-width: none; }
+  .flag strong { color: var(--accent-warm); }
+
+  /* ---------- Endpoint table ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; background: var(--surface); }
+  th, td { text-align: left; padding: 0.65rem 1rem; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+  thead th {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 600;
+    background: var(--surface-2);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  .method {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 0.15em 0.5em;
+    border-radius: 5px;
+    display: inline-block;
+  }
+  .method.get { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+  .method.post { background: color-mix(in srgb, var(--accent-warm) 18%, transparent); color: var(--accent-warm); }
+  .method.put, .method.patch { background: var(--surface-2); color: var(--ink); }
+  td .path { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink); background: none; padding: 0; }
+  td.note { color: var(--muted); }
+
+  /* ---------- Folder tree ---------- */
+  pre.tree {
+    font-family: var(--font-mono);
+    font-size: 0.83rem;
+    line-height: 1.55;
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    margin: 0;
+    color: var(--ink);
+  }
+  pre.tree .dim { color: var(--faint); }
+
+  /* ---------- Timeline ---------- */
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 720px) {
+    .timeline { grid-template-columns: 1fr; }
+    .decisions { grid-template-columns: 1fr 1fr; }
+  }
+  .week {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.15rem 1.25rem 1.3rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .week header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+  .week h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .week .range {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--faint);
+  }
+  .week ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .week ol li {
+    font-size: 0.87rem;
+    color: var(--muted);
+    padding-left: 1rem;
+    position: relative;
+  }
+  .week ol li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .week ol li strong { color: var(--ink); }
+
+  /* ---------- Cut list ---------- */
+  .cutlist { display: flex; flex-direction: column; gap: 0.6rem; }
+  .cut-row {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 0.7rem 1rem;
+  }
+  .cut-row .rank {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--faint);
+    width: 1.4rem;
+    flex: none;
+  }
+  .cut-row .txt { font-size: 0.92rem; color: var(--ink); }
+  .cut-row.protect {
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+    background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+  }
+  .cut-row.protect .rank { color: var(--accent); }
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0.2em 0.55em;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    margin-left: auto;
+    flex: none;
+  }
+
+  /* ---------- Checklist ---------- */
+  .checklist { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+  .checklist li {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    font-size: 0.93rem;
+    color: var(--ink);
+  }
+  .checklist li::before {
+    content: "";
+    flex: none;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-top: 0.15rem;
+    border: 1.5px solid var(--faint);
+    border-radius: 4px;
+  }
+
+  /* ---------- Critical files ---------- */
+  .files { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
+  .file-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 2fr;
+    gap: 1rem;
+    padding: 0.7rem 1.1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    font-size: 0.87rem;
+  }
+  .file-row:last-child { border-bottom: none; }
+  .file-row .p { font-family: var(--font-mono); color: var(--accent); word-break: break-word; }
+  .file-row .d { color: var(--muted); }
+  @media (max-width: 640px) {
+    .file-row { grid-template-columns: 1fr; gap: 0.2rem; }
+  }
+
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--faint);
+    font-size: 0.82rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <span class="eyebrow">get-it-together · implementation plan</span>
+    <h1>From backend scaffold to a testable prototype</h1>
+    <p class="dek">A concrete plan to take the identity-based habit tracker from a one-endpoint API stub to a deployed app a small group of testers can register for and use — by July&nbsp;31.</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><span class="label">Scope</span><span class="value">Habit tracker only</span></div>
+    <div class="stat"><span class="label">Frontend</span><span class="value">Angular</span></div>
+    <div class="stat"><span class="label">Auth</span><span class="value">Email + password</span></div>
+    <div class="stat"><span class="label">Hosting</span><span class="value">Vercel + Render</span></div>
+    <div class="stat"><span class="label">Deadline</span><span class="value accent">Jul 31, 2026</span></div>
+  </div>
+
+  <section id="context">
+    <h2><span class="section-num">00</span>Context</h2>
+    <p class="section-intro">
+      The repo has a clean EF Core data model — <code>User</code> → <code>Identity</code> → <code>Habit</code> → <code>HabitLog</code> —
+      but only one working endpoint (<code>GET /api/identities</code>), hardcoded to a fake test user. There is no frontend,
+      no auth, no tests, and no deployment setup. Five commits total; this is greenfield from here. Today is July&nbsp;15 — about
+      two and a half weeks of runway to a small-audience test.
+    </p>
+    <ul class="decisions">
+      <li><span class="k">Scope</span><span class="v">Habits only. Screen time tracking is deferred to a future phase — don't build for it now.</span></li>
+      <li><span class="k">Frontend</span><span class="v">Angular, standalone components, plain SPA (no SSR).</span></li>
+      <li><span class="k">Auth</span><span class="v">Real per-user accounts. Not a shared demo login, not magic links.</span></li>
+      <li><span class="k">Hosting intent</span><span class="v">Frontend on Vercel, as requested.</span></li>
+    </ul>
+    <div class="flag">
+      <span class="dot"></span>
+      <p><strong>Flagging a tradeoff:</strong> Vercel doesn't run long-lived ASP.NET Core processes or managed Postgres.
+      The Angular frontend goes to Vercel as planned; the .NET API and database go to <strong>Render</strong> instead —
+      a Docker-based web service with managed Postgres, the simplest env-var-driven option for this timeline.</p>
+    </div>
+  </section>
+
+  <section id="backend">
+    <h2><span class="section-num">01</span>Backend completion</h2>
+    <p class="section-intro">
+      Lightweight custom JWT auth — not full ASP.NET Core Identity, which carries more scaffolding than a
+      two-week prototype needs. <code>BCrypt.Net-Next</code> for hashing, <code>Microsoft.AspNetCore.Authentication.JwtBearer</code>
+      for tokens. Every protected route scopes its query by the <code>UserId</code> claim on the request — that's what finally
+      retires the hardcoded test user in <code>Program.cs</code>.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Route</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="method post">POST</span></td><td><span class="path">/api/auth/register</span></td><td class="note">Create account, hash password, return token</td></tr>
+          <tr><td><span class="method post">POST</span></td><td><span class="path">/api/auth/login</span></td><td class="note">Verify + issue token</td></tr>
+          <tr><td><span class="method get">GET</span></td><td><span class="path">/api/auth/me</span></td><td class="note">Restore session on refresh</td></tr>
+          <tr><td><span class="method get">GET</span></td><td><span class="path">/api/identities</span></td><td class="note">Scoped to caller, replaces the TODO</td></tr>
+          <tr><td><span class="method post">POST</span></td><td><span class="path">/api/identities</span></td><td class="note">Create identity statement</td></tr>
+          <tr><td><span class="method patch">PATCH</span></td><td><span class="path">/api/identities/{id}/archive</span></td><td class="note">Soft delete, keeps log history</td></tr>
+          <tr><td><span class="method get">GET</span></td><td><span class="path">/api/identities/{id}/habits</span></td><td class="note">Habits under an identity</td></tr>
+          <tr><td><span class="method post">POST</span></td><td><span class="path">/api/identities/{id}/habits</span></td><td class="note">Create habit + frequency</td></tr>
+          <tr><td><span class="method put">PUT</span></td><td><span class="path">/api/habits/{habitId}/logs/{date}</span></td><td class="note">Idempotent daily check-in — the core loop</td></tr>
+          <tr><td><span class="method get">GET</span></td><td><span class="path">/api/dashboard/today</span></td><td class="note">One call: identities + habits + today's status</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="frontend">
+    <h2><span class="section-num">02</span>Angular frontend</h2>
+    <p class="section-intro">
+      New <code>frontend/</code> app at the repo root, scaffolded with routing and standalone components.
+      Four screens carry the whole prototype: <strong>login</strong>, <strong>register</strong>, a guarded
+      <strong>dashboard</strong> (identities with nested habits, one-tap check-in for today), and simple
+      <strong>create forms</strong> for identities and habits.
+    </p>
+    <pre class="tree">frontend/src/app/
+├── core/
+│   ├── services/       <span class="dim"># auth, identity, habit, habit-log, dashboard</span>
+│   ├── interceptors/    <span class="dim"># attach JWT, handle 401</span>
+│   └── guards/          <span class="dim"># auth.guard.ts</span>
+└── features/
+    ├── auth/            <span class="dim"># login, register</span>
+    ├── dashboard/        <span class="dim"># the daily check-in screen</span>
+    ├── identity-form/
+    └── habit-form/</pre>
+  </section>
+
+  <section id="deploy">
+    <h2><span class="section-num">03</span>Deployment</h2>
+    <p class="section-intro">
+      <strong>Frontend → Vercel.</strong> Root directory set to <code>frontend/</code>; Angular preset auto-detected, static build.
+      <strong>Backend + Postgres → Render.</strong> A new <code>backend/Dockerfile</code>, a managed Postgres instance, and three
+      env vars carrying the connection string, JWT signing key, and allowed CORS origin.
+    </p>
+  </section>
+
+  <section id="timeline">
+    <h2><span class="section-num">04</span>Week by week</h2>
+    <p class="section-intro">July 15 → July 31. Backend first, then frontend consumes it, then deployment.</p>
+    <div class="timeline">
+      <div class="week">
+        <header><h3>Week 1</h3><span class="range">Jul 15–19</span></header>
+        <ol>
+          <li><strong>Backend.</strong> Auth (BCrypt + JWT)</li>
+          <li>Identity + Habit CRUD, CORS wired</li>
+          <li>HabitLog check-in + dashboard endpoint</li>
+          <li>Smoke test, auth integration tests, docker-compose, README</li>
+        </ol>
+      </div>
+      <div class="week">
+        <header><h3>Week 2</h3><span class="range">Jul 20–26</span></header>
+        <ol>
+          <li><strong>Frontend.</strong> Scaffold, interceptors, guards</li>
+          <li>Login / register wired to real backend</li>
+          <li>Dashboard + identity/habit forms</li>
+          <li>Full local end-to-end pass</li>
+        </ol>
+      </div>
+      <div class="week">
+        <header><h3>Week 3</h3><span class="range">Jul 27–31</span></header>
+        <ol>
+          <li><strong>Deploy.</strong> Dockerfile, Render deploy + migrations</li>
+          <li>Vercel deploy, fix CORS/env issues</li>
+          <li>Deployed end-to-end smoke test</li>
+          <li>Buffer day, then invite testers</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="cuts">
+    <h2><span class="section-num">05</span>If time runs short</h2>
+    <p class="section-intro">Cut in this order — first row goes first, last row is protected longest.</p>
+    <div class="cutlist">
+      <div class="cut-row"><span class="rank">01</span><span class="txt">Habit history / streak view — never build it</span></div>
+      <div class="cut-row"><span class="rank">02</span><span class="txt">Edit flows for identities/habits — create + archive only</span></div>
+      <div class="cut-row"><span class="rank">03</span><span class="txt">Undo-checkin endpoint</span></div>
+      <div class="cut-row protect"><span class="rank">—</span><span class="txt">Register, login, dashboard, daily check-in</span><span class="pill">Never cut</span></div>
+    </div>
+  </section>
+
+  <section id="verify">
+    <h2><span class="section-num">06</span>Verification</h2>
+    <p class="section-intro">Manual smoke check, run before each deploy and before inviting testers:</p>
+    <ul class="checklist">
+      <li>Register → land on empty dashboard</li>
+      <li>Create an identity, then a habit under it (each frequency type)</li>
+      <li>Check in today → reflected immediately, survives a page refresh</li>
+      <li>Log out, log back in → data still scoped correctly</li>
+      <li>Register a second account → confirm zero visibility into the first account's data</li>
+      <li>Archive a habit → disappears from the active view</li>
+      <li>Check the dashboard at a mobile viewport width</li>
+    </ul>
+  </section>
+
+  <section id="files">
+    <h2><span class="section-num">07</span>Critical files</h2>
+    <div class="files">
+      <div class="file-row"><span class="p">backend/Program.cs</span><span class="d">Auth middleware, CORS, endpoint wiring; where the hardcoded test-user TODO lives today</span></div>
+      <div class="file-row"><span class="p">backend/IdentityHabits.Api.csproj</span><span class="d">Add BCrypt.Net-Next + JwtBearer package references</span></div>
+      <div class="file-row"><span class="p">backend/Data/AppDbContext.cs</span><span class="d">Ownership relationships to mirror in scoped queries</span></div>
+      <div class="file-row"><span class="p">backend/appsettings.Development.json.example</span><span class="d">Extend with Jwt and Cors config sections</span></div>
+      <div class="file-row"><span class="p">.env.example, README.md</span><span class="d">Currently near-empty; need real env var docs and a local dev quickstart</span></div>
+    </div>
+  </section>
+
+  <footer>
+    get-it-together · prototype plan · last updated 2026-07-15
+  </footer>
+
+</div>
+</body>
+</html>
