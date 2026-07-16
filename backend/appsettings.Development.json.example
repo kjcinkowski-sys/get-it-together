@@ -7,5 +7,14 @@
   },
   "ConnectionStrings": {
     "DefaultConnection": "Host=localhost;Port=5432;Database=identity_habits;Username=postgres;Password=postgres"
-  }
+  },
+  "Jwt": {
+    "SigningKey": "replace-with-a-long-random-development-only-secret",
+    "Issuer": "IdentityHabits.Api",
+    "ExpiryDays": 14
+  },
+  "Cors": {
+    "AllowedOrigins": ["http://localhost:4200"]
+  },
+  "MigrateOnStartup": true
 }

@@ -1,0 +1,77 @@
+<header class="app-header">
+  <div>
+    <p class="eyebrow">Get-It-Together</p>
+    <h1>Today</h1>
+  </div>
+  <div class="header-actions">
+    @if (authService.currentUser(); as user) {
+      <span class="user-name">{{ user.displayName }}</span>
+    }
+    <button type="button" class="btn btn-ghost" (click)="logout()">Log out</button>
+  </div>
+</header>
+
+<main class="dashboard">
+  @if (loading()) {
+    <p class="muted">Loading…</p>
+  } @else {
+    @if (errorMessage()) {
+      <p class="error-text">{{ errorMessage() }}</p>
+    }
+
+    @if (identities().length === 0) {
+      <div class="empty-state card">
+        <p>You don't have any identities yet.</p>
+        <a routerLink="/identities/new" class="btn">Add your first identity</a>
+      </div>
+    } @else {
+      @for (identity of identities(); track identity.id) {
+        <section class="identity-card card">
+          <div class="identity-header">
+            <h2>{{ identity.statement }}</h2>
+            <div class="identity-actions">
+              <a [routerLink]="['/identities', identity.id, 'habits', 'new']" class="btn btn-secondary">
+                + Habit
+              </a>
+              <button type="button" class="btn btn-ghost" (click)="archiveIdentity(identity.id)">Archive</button>
+            </div>
+          </div>
+
+          @if (identity.habits.length === 0) {
+            <p class="muted">No habits yet under this identity.</p>
+          } @else {
+            <ul class="habit-list">
+              @for (habit of identity.habits; track habit.id) {
+                <li class="habit-row">
+                  <div class="habit-info">
+                    <span class="habit-name">{{ habit.name }}</span>
+                    <span class="habit-meta">{{ habit.frequencyType }} · {{ habit.targetPerWeek }}x/week</span>
+                  </div>
+
+                  <div class="status-buttons">
+                    @for (status of statuses; track status) {
+                      <button
+                        type="button"
+                        class="status-btn"
+                        [class.active]="habit.todayStatus === status"
+                        [ngClass]="'status-' + status.toLowerCase()"
+                        [disabled]="pendingHabitId() === habit.id"
+                        (click)="checkIn(habit.id, status)"
+                      >
+                        {{ status }}
+                      </button>
+                    }
+                  </div>
+
+                  <button type="button" class="btn btn-ghost" (click)="archiveHabit(habit.id)">Archive</button>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+      <a routerLink="/identities/new" class="btn btn-secondary add-identity">+ Add another identity</a>
+    }
+  }
+</main>

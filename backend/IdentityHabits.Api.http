@@ -1,6 +1,56 @@
 @IdentityHabits.Api_HostAddress = http://localhost:5069
 
-GET {{IdentityHabits.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Register
+POST {{IdentityHabits.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "tester@example.com",
+  "password": "correct-horse-battery-staple",
+  "displayName": "Tester"
+}
+
+### Login
+# @name login
+POST {{IdentityHabits.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "tester@example.com",
+  "password": "correct-horse-battery-staple"
+}
+
+### Current user
+GET {{IdentityHabits.Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{login.response.body.token}}
+
+### List identities
+GET {{IdentityHabits.Api_HostAddress}}/api/identities
+Authorization: Bearer {{login.response.body.token}}
+
+### Create an identity
+# @name createIdentity
+POST {{IdentityHabits.Api_HostAddress}}/api/identities
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "statement": "I am a runner"
+}
+
+### Create a habit under that identity
+POST {{IdentityHabits.Api_HostAddress}}/api/identities/{{createIdentity.response.body.id}}/habits
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "name": "Run 20 minutes",
+  "frequencyType": "Daily",
+  "targetPerWeek": 7
+}
+
+### Today's dashboard
+GET {{IdentityHabits.Api_HostAddress}}/api/dashboard/today
+Authorization: Bearer {{login.response.body.token}}
 
 ###
