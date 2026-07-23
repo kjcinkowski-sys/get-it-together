@@ -1,7 +1,14 @@
+using IdentityHabits.Api.Models;
+
 namespace IdentityHabits.Api.Dtos;
 
-public record CreateIdentityRequest(string Statement);
+public record CreateIdentityRequest(string Statement, CompanionType? Companion);
 
-public record UpdateIdentityRequest(string Statement);
+public record UpdateIdentityRequest(string Statement, CompanionType? Companion);
 
-public record IdentityResponse(Guid Id, string Statement, bool IsArchived, DateTime CreatedAt);
+public record IdentityResponse(
+    Guid Id,
+    string Statement,
+    CompanionType Companion,
+    bool IsArchived,
+    DateTime CreatedAt);

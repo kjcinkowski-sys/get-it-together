@@ -19,7 +19,7 @@ public static class IdentityEndpoints
             var identities = await db.Identities
                 .Where(i => i.UserId == userId && !i.IsArchived)
                 .OrderBy(i => i.CreatedAt)
-                .Select(i => new IdentityResponse(i.Id, i.Statement, i.IsArchived, i.CreatedAt))
+                .Select(i => new IdentityResponse(i.Id, i.Statement, i.Companion, i.IsArchived, i.CreatedAt))
                 .ToListAsync();
 
             return Results.Ok(identities);
@@ -37,6 +37,7 @@ public static class IdentityEndpoints
                 Id = Guid.NewGuid(),
                 UserId = claims.GetUserId(),
                 Statement = request.Statement.Trim(),
+                Companion = request.Companion ?? CompanionType.Sprite,
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -44,7 +45,7 @@ public static class IdentityEndpoints
             await db.SaveChangesAsync();
 
             return Results.Created($"/api/identities/{identity.Id}",
-                new IdentityResponse(identity.Id, identity.Statement, identity.IsArchived, identity.CreatedAt));
+                new IdentityResponse(identity.Id, identity.Statement, identity.Companion, identity.IsArchived, identity.CreatedAt));
         });
 
         group.MapGet("/{id:guid}", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>
@@ -52,7 +53,7 @@ public static class IdentityEndpoints
             var identity = await FindOwnedIdentity(db, id, claims.GetUserId());
             return identity is null
                 ? Results.NotFound()
-                : Results.Ok(new IdentityResponse(identity.Id, identity.Statement, identity.IsArchived, identity.CreatedAt));
+                : Results.Ok(new IdentityResponse(identity.Id, identity.Statement, identity.Companion, identity.IsArchived, identity.CreatedAt));
         });
 
         group.MapPut("/{id:guid}", async (Guid id, UpdateIdentityRequest request, ClaimsPrincipal claims, AppDbContext db) =>
@@ -66,9 +67,13 @@ public static class IdentityEndpoints
             if (identity is null) return Results.NotFound();
 
             identity.Statement = request.Statement.Trim();
+            if (request.Companion is not null)
+            {
+                identity.Companion = request.Companion.Value;
+            }
             await db.SaveChangesAsync();
 
-            return Results.Ok(new IdentityResponse(identity.Id, identity.Statement, identity.IsArchived, identity.CreatedAt));
+            return Results.Ok(new IdentityResponse(identity.Id, identity.Statement, identity.Companion, identity.IsArchived, identity.CreatedAt));
         });
 
         group.MapPatch("/{id:guid}/archive", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>

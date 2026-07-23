@@ -1,1 +1,38 @@
 /* Shared form layout styles live in src/styles.scss (.form-page, .form-card, .actions). */
+
+.companion-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.companion-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.7rem 0.4rem 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.companion-option:hover {
+  border-color: var(--accent);
+}
+
+.companion-option.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent) inset;
+}
+
+.companion-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+}

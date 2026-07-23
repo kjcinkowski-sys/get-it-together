@@ -10,6 +10,24 @@
         <input type="text" formControlName="statement" placeholder="I am a runner" />
       </label>
 
+      <div class="field">
+        <span>Companion</span>
+        <small>Pick a character to grow as you stay consistent.</small>
+        <div class="companion-picker">
+          @for (option of companionOptions; track option.type) {
+            <button
+              type="button"
+              class="companion-option"
+              [class.selected]="form.controls.companion.value === option.type"
+              (click)="selectCompanion(option.type)"
+            >
+              <app-companion [type]="option.type" [stage]="previewStage" [size]="72" />
+              <span class="companion-label">{{ option.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
       @if (errorMessage()) {
         <p class="error-text">{{ errorMessage() }}</p>
       }
