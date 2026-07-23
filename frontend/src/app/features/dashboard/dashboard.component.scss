@@ -57,6 +57,52 @@
   font-size: 1.15rem;
 }
 
+.identity-title {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.identity-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.strength {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stage-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  flex: none;
+}
+
+.strength-bar {
+  display: block;
+  width: 96px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.strength-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
 .identity-actions {
   display: flex;
   gap: 0.5rem;

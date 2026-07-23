@@ -9,4 +9,11 @@ public record TodayHabitResponse(
     int TargetPerWeek,
     HabitLogStatus? TodayStatus);
 
-public record TodayIdentityResponse(Guid Id, string Statement, List<TodayHabitResponse> Habits);
+public record TodayIdentityResponse(
+    Guid Id,
+    string Statement,
+    CompanionType Companion,
+    int Strength,
+    int Stage,
+    string StageName,
+    List<TodayHabitResponse> Habits);

@@ -1,6 +1,7 @@
 import { NgClass } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CompanionComponent } from '../../shared/companion/companion.component';
 import { TodayIdentity } from '../../core/models/dashboard.model';
 import { HabitLogStatus } from '../../core/models/habit-log.model';
 import { AuthService } from '../../core/services/auth.service';
@@ -17,7 +18,7 @@ function todayIso(): string {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NgClass, RouterLink],
+  imports: [NgClass, RouterLink, CompanionComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })

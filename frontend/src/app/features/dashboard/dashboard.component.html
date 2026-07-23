@@ -28,7 +28,21 @@
       @for (identity of identities(); track identity.id) {
         <section class="identity-card card">
           <div class="identity-header">
-            <h2>{{ identity.statement }}</h2>
+            <div class="identity-title">
+              <app-companion
+                [type]="identity.companion"
+                [strength]="identity.strength"
+                [stage]="identity.stage"
+                [size]="64"
+              />
+              <div class="identity-heading">
+                <h2>{{ identity.statement }}</h2>
+                <div class="strength" [title]="identity.strength + '% consistency strength'">
+                  <span class="stage-name">{{ identity.stageName }}</span>
+                  <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.strength"></span></span>
+                </div>
+              </div>
+            </div>
             <div class="identity-actions">
               <a [routerLink]="['/identities', identity.id, 'habits', 'new']" class="btn btn-secondary">
                 + Habit
