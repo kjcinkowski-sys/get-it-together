@@ -13,7 +13,7 @@
 
 .app-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
@@ -21,8 +21,8 @@
 
 .app-header__brand {
   display: flex;
-  align-items: center;
-  gap: 0.55rem;
+  flex-direction: column;
+  align-items: flex-start;
   min-width: 0;
 }
 
@@ -123,11 +123,12 @@
   flex-direction: column;
 }
 
-// Each row: a large tap-to-cycle target plus a small archive affordance.
+// Each row: a name/meta line, then a full-width row of the three check-in options.
 .habit-row {
   display: flex;
-  align-items: stretch;
-  gap: 0.25rem;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem 0;
   border-top: 1px solid var(--line);
 }
 
@@ -135,34 +136,10 @@
   border-top: none;
 }
 
-.habit-main {
-  flex: 1;
-  min-width: 0;
+.habit-top {
   display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  min-height: 52px;
-  padding: 0.55rem 0.15rem;
-  border: none;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  color: inherit;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.habit-main:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.status-dot {
-  flex: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  border: 2px solid var(--line);
-  background: transparent;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
 .habit-info {
@@ -175,9 +152,6 @@
 .habit-name {
   font-weight: 600;
   font-size: 0.95rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .habit-meta {
@@ -185,44 +159,14 @@
   color: var(--faint);
 }
 
-.habit-status {
-  flex: none;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--faint);
-}
-
-// Status → color, applied to both the dot and the label via the row's status class.
-.habit-main.status-completed {
-  .status-dot { background: var(--accent); border-color: var(--accent); }
-  .habit-status { color: var(--accent); }
-}
-
-.habit-main.status-partial {
-  .status-dot { background: #c17a3d; border-color: #c17a3d; }
-  .habit-status { color: #c17a3d; }
-}
-
-.habit-main.status-missed {
-  .status-dot { background: var(--danger); border-color: var(--danger); }
-  .habit-status { color: var(--danger); }
-}
-
-.habit-main.status-none .habit-status {
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 600;
-}
-
 .habit-archive {
   flex: none;
-  width: 40px;
+  width: 32px;
+  height: 32px;
   border: none;
   background: transparent;
   color: var(--faint);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   border-radius: 8px;
   -webkit-tap-highlight-color: transparent;
@@ -230,6 +174,49 @@
 
 .habit-archive:active {
   background: var(--bg);
+}
+
+// Three explicit check-in options sharing one full-width row.
+.status-buttons {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.status-btn {
+  flex: 1;
+  min-height: 44px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.status-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-btn.active.status-completed {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.status-btn.active.status-partial {
+  background: #c17a3d;
+  border-color: #c17a3d;
+  color: #fff;
+}
+
+.status-btn.active.status-missed {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
 }
 
 .identity-footer {
