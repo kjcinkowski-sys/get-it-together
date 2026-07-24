@@ -1,0 +1,32 @@
+.app-splash,
+.app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.app-splash {
+  transition: opacity 0.4s ease;
+  opacity: 1;
+}
+
+.app-splash--out {
+  opacity: 0;
+}
+
+.app-loading {
+  animation: appLoadingIn 0.15s ease both;
+}
+
+@keyframes appLoadingIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
