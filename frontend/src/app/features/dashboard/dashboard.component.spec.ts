@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Subject, of } from 'rxjs';
+import { throwError, of } from 'rxjs';
 import { TodayIdentity } from '../../core/models/dashboard.model';
 import { HabitLogStatus } from '../../core/models/habit-log.model';
 import { AuthService } from '../../core/services/auth.service';
@@ -25,7 +25,7 @@ function identityWith(status: HabitLogStatus | null): TodayIdentity[] {
   ];
 }
 
-describe('DashboardComponent tap-to-cycle', () => {
+describe('DashboardComponent check-in', () => {
   let component: DashboardComponent;
   let checkInSpy: jasmine.Spy;
 
@@ -48,34 +48,27 @@ describe('DashboardComponent tap-to-cycle', () => {
     component = TestBed.createComponent(DashboardComponent).componentInstance;
   });
 
-  const cases: Array<[HabitLogStatus | null, HabitLogStatus]> = [
-    [null, 'Completed'],
-    ['Completed', 'Partial'],
-    ['Partial', 'Missed'],
-    ['Missed', 'Completed'],
-  ];
+  const statuses: HabitLogStatus[] = ['Completed', 'Partial', 'Missed'];
 
-  for (const [from, to] of cases) {
-    it(`cycles ${from ?? 'unset'} → ${to}`, () => {
-      component.identities.set(identityWith(from));
-      component.cycleStatus(component.identities()[0].habits[0]);
-      expect(checkInSpy).toHaveBeenCalledWith('h1', jasmine.any(String), to);
+  for (const status of statuses) {
+    it(`sends a "${status}" check-in for the chosen habit and date`, () => {
+      component.identities.set(identityWith(null));
+      component.checkIn('h1', status);
+      expect(checkInSpy).toHaveBeenCalledWith('h1', component.today, status);
+    });
+
+    it(`applies "${status}" to the habit after a successful check-in`, () => {
+      component.identities.set(identityWith(null));
+      component.checkIn('h1', status);
+      expect(component.identities()[0].habits[0].todayStatus).toBe(status);
     });
   }
 
-  it('applies the new status to the habit after a successful check-in', () => {
-    component.identities.set(identityWith(null));
-    component.cycleStatus(component.identities()[0].habits[0]);
+  it('surfaces an error and leaves the status unchanged when the check-in fails', () => {
+    checkInSpy.and.returnValue(throwError(() => new Error('boom')));
+    component.identities.set(identityWith('Completed'));
+    component.checkIn('h1', 'Missed');
     expect(component.identities()[0].habits[0].todayStatus).toBe('Completed');
-  });
-
-  it('ignores taps while a check-in is already in flight', () => {
-    // A subject that never emits keeps pendingHabitId set, simulating a slow request.
-    checkInSpy.and.returnValue(new Subject());
-    component.identities.set(identityWith(null));
-    const habit = component.identities()[0].habits[0];
-    component.cycleStatus(habit);
-    component.cycleStatus(habit);
-    expect(checkInSpy).toHaveBeenCalledTimes(1);
+    expect(component.errorMessage()).toBeTruthy();
   });
 });
