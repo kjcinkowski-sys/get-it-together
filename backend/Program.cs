@@ -47,6 +47,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+// Temporary deploy diagnostic: confirm which CORS origins the app actually loaded.
+Console.WriteLine($"[CORS] Allowed origins loaded: [{string.Join(", ", allowedOrigins)}]");
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>

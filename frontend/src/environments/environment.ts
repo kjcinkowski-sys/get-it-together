@@ -3,5 +3,5 @@
 // See DEPLOY.md.
 export const environment = {
   production: true,
-  apiUrl: 'https://get-it-together-api.onrender.com/api',
+  apiUrl: 'https://get-it-together-flzg.onrender.com/api',
 };
