@@ -1,6 +1,6 @@
 <header class="app-header">
-  <div>
-    <app-logo />
+  <div class="app-header__brand">
+    <app-logo [showWord]="false" [size]="30" />
     <h1>Today</h1>
   </div>
   <div class="header-actions">
@@ -28,26 +28,18 @@
       @for (identity of identities(); track identity.id) {
         <section class="identity-card card">
           <div class="identity-header">
-            <div class="identity-title">
-              <app-companion
-                [type]="identity.companion"
-                [strength]="identity.strength"
-                [stage]="identity.stage"
-                [size]="64"
-              />
-              <div class="identity-heading">
-                <h2>{{ identity.statement }}</h2>
-                <div class="strength" [title]="identity.strength + '% consistency strength'">
-                  <span class="stage-name">{{ identity.stageName }}</span>
-                  <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.strength"></span></span>
-                </div>
+            <app-companion
+              [type]="identity.companion"
+              [strength]="identity.strength"
+              [stage]="identity.stage"
+              [size]="56"
+            />
+            <div class="identity-heading">
+              <h2>{{ identity.statement }}</h2>
+              <div class="strength" [title]="identity.strength + '% consistency strength'">
+                <span class="stage-name">{{ identity.stageName }}</span>
+                <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.strength"></span></span>
               </div>
-            </div>
-            <div class="identity-actions">
-              <a [routerLink]="['/identities', identity.id, 'habits', 'new']" class="btn btn-secondary">
-                + Habit
-              </a>
-              <button type="button" class="btn btn-ghost" (click)="archiveIdentity(identity.id)">Archive</button>
             </div>
           </div>
 
@@ -57,35 +49,47 @@
             <ul class="habit-list">
               @for (habit of identity.habits; track habit.id) {
                 <li class="habit-row">
-                  <div class="habit-info">
-                    <span class="habit-name">{{ habit.name }}</span>
-                    <span class="habit-meta">{{ habit.frequencyType }} · {{ habit.targetPerWeek }}x/week</span>
-                  </div>
-
-                  <div class="status-buttons">
-                    @for (status of statuses; track status) {
-                      <button
-                        type="button"
-                        class="status-btn"
-                        [class.active]="habit.todayStatus === status"
-                        [ngClass]="'status-' + status.toLowerCase()"
-                        [disabled]="pendingHabitId() === habit.id"
-                        (click)="checkIn(habit.id, status)"
-                      >
-                        {{ status }}
-                      </button>
-                    }
-                  </div>
-
-                  <button type="button" class="btn btn-ghost" (click)="archiveHabit(habit.id)">Archive</button>
+                  <button
+                    type="button"
+                    class="habit-main"
+                    [ngClass]="'status-' + (habit.todayStatus ?? 'none').toLowerCase()"
+                    [disabled]="pendingHabitId() === habit.id"
+                    (click)="cycleStatus(habit)"
+                  >
+                    <span class="status-dot"></span>
+                    <span class="habit-info">
+                      <span class="habit-name">{{ habit.name }}</span>
+                      <span class="habit-meta">{{ habit.frequencyType }} · {{ habit.targetPerWeek }}x/week</span>
+                    </span>
+                    <span class="habit-status">{{ habit.todayStatus ?? 'Tap to check in' }}</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="habit-archive"
+                    aria-label="Archive habit"
+                    (click)="archiveHabit(habit.id)"
+                  >
+                    ✕
+                  </button>
                 </li>
               }
             </ul>
           }
+
+          <div class="identity-footer">
+            <a [routerLink]="['/identities', identity.id, 'habits', 'new']" class="btn btn-secondary">
+              + Habit
+            </a>
+            <button type="button" class="btn btn-ghost" (click)="archiveIdentity(identity.id)">Archive</button>
+          </div>
         </section>
       }
-
-      <a routerLink="/identities/new" class="btn btn-secondary add-identity">+ Add another identity</a>
     }
   }
 </main>
+
+@if (!loading() && identities().length > 0) {
+  <nav class="action-bar">
+    <a routerLink="/identities/new" class="btn action-bar__add">+ Add identity</a>
+  </nav>
+}
