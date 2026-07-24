@@ -27,6 +27,10 @@ body {
 body {
   background: var(--bg);
   color: var(--ink);
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
   font-family:
     -apple-system,
     BlinkMacSystemFont,

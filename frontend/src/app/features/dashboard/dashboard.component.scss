@@ -2,27 +2,44 @@
   display: block;
   max-width: 720px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  min-height: 100dvh;
+  // Room for the fixed action bar + the phone's home indicator.
+  padding:
+    calc(env(safe-area-inset-top) + 1rem)
+    max(env(safe-area-inset-right), 1rem)
+    calc(env(safe-area-inset-bottom) + 5.5rem)
+    max(env(safe-area-inset-left), 1rem);
 }
 
 .app-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
 }
 
 .app-header h1 {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  flex: none;
 }
 
+// The greeting is nice-to-have; hide it on narrow screens to protect the header.
 .user-name {
+  display: none;
   font-size: 0.88rem;
   color: var(--muted);
 }
@@ -41,33 +58,27 @@
 }
 
 .identity-card {
-  padding: 1.25rem 1.5rem;
+  padding: 1.1rem 1.1rem 0.9rem;
   margin-bottom: 1rem;
 }
 
 .identity-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+  min-width: 0;
 }
 
 .identity-header h2 {
-  font-size: 1.15rem;
-}
-
-.identity-title {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  min-width: 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
 }
 
 .identity-heading {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.4rem;
   min-width: 0;
 }
 
@@ -78,7 +89,7 @@
 }
 
 .stage-name {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -88,7 +99,8 @@
 
 .strength-bar {
   display: block;
-  width: 96px;
+  flex: 1;
+  max-width: 120px;
   height: 5px;
   border-radius: 999px;
   background: var(--line);
@@ -103,31 +115,54 @@
   transition: width 0.4s ease;
 }
 
-.identity-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex: none;
-}
-
 .habit-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
 }
 
+// Each row: a large tap-to-cycle target plus a small archive affordance.
 .habit-row {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0;
+  align-items: stretch;
+  gap: 0.25rem;
   border-top: 1px solid var(--line);
 }
 
 .habit-row:first-child {
   border-top: none;
+}
+
+.habit-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 52px;
+  padding: 0.55rem 0.15rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.habit-main:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-dot {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  background: transparent;
 }
 
 .habit-info {
@@ -140,6 +175,9 @@
 .habit-name {
   font-weight: 600;
   font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .habit-meta {
@@ -147,47 +185,102 @@
   color: var(--faint);
 }
 
-.status-buttons {
-  display: flex;
-  gap: 0.35rem;
+.habit-status {
   flex: none;
-}
-
-.status-btn {
   font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+// Status → color, applied to both the dot and the label via the row's status class.
+.habit-main.status-completed {
+  .status-dot { background: var(--accent); border-color: var(--accent); }
+  .habit-status { color: var(--accent); }
+}
+
+.habit-main.status-partial {
+  .status-dot { background: #c17a3d; border-color: #c17a3d; }
+  .habit-status { color: #c17a3d; }
+}
+
+.habit-main.status-missed {
+  .status-dot { background: var(--danger); border-color: var(--danger); }
+  .habit-status { color: var(--danger); }
+}
+
+.habit-main.status-none .habit-status {
+  text-transform: none;
+  letter-spacing: 0;
   font-weight: 600;
-  padding: 0.35rem 0.6rem;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--muted);
+}
+
+.habit-archive {
+  flex: none;
+  width: 40px;
+  border: none;
+  background: transparent;
+  color: var(--faint);
+  font-size: 0.9rem;
   cursor: pointer;
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.status-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.habit-archive:active {
+  background: var(--bg);
 }
 
-.status-btn.active.status-completed {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-ink);
+.identity-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
 }
 
-.status-btn.active.status-partial {
-  background: #c17a3d;
-  border-color: #c17a3d;
-  color: #fff;
+.identity-footer .btn-secondary {
+  flex: 1;
 }
 
-.status-btn.active.status-missed {
-  background: #b3392b;
-  border-color: #b3392b;
-  color: #fff;
+// Fixed bottom action bar — sits above the home indicator on-device.
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  padding:
+    0.75rem
+    max(env(safe-area-inset-right), 1rem)
+    calc(env(safe-area-inset-bottom) + 0.75rem)
+    max(env(safe-area-inset-left), 1rem);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
 }
 
-.add-identity {
-  display: inline-flex;
-  margin-top: 0.5rem;
+.action-bar__add {
+  width: 100%;
+  max-width: 720px;
+  min-height: 48px;
+}
+
+// Scale up for tablet / desktop: show the greeting, cap the bar to content width.
+@media (min-width: 720px) {
+  :host {
+    padding-top: calc(env(safe-area-inset-top) + 2rem);
+  }
+
+  .app-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .user-name {
+    display: inline;
+  }
 }

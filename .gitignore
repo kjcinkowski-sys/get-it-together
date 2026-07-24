@@ -3,3 +3,6 @@
 backend/bin/
 backend/obj/
 backend/appsettings.Development.json
+
+# Claude Code local preview config
+.claude/

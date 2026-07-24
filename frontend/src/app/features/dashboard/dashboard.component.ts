@@ -3,7 +3,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CompanionComponent } from '../../shared/companion/companion.component';
 import { LogoComponent } from '../../shared/logo/logo.component';
-import { TodayIdentity } from '../../core/models/dashboard.model';
+import { TodayHabit, TodayIdentity } from '../../core/models/dashboard.model';
 import { HabitLogStatus } from '../../core/models/habit-log.model';
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardService } from '../../core/services/dashboard.service';
@@ -30,7 +30,6 @@ export class DashboardComponent implements OnInit {
   readonly pendingHabitId = signal<string | null>(null);
 
   readonly today = todayIso();
-  readonly statuses: HabitLogStatus[] = ['Completed', 'Partial', 'Missed'];
 
   constructor(
     readonly authService: AuthService,
@@ -58,6 +57,25 @@ export class DashboardComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  /** Advance a habit to its next status: unset → Completed → Partial → Missed → Completed. */
+  cycleStatus(habit: TodayHabit): void {
+    if (this.pendingHabitId()) return;
+    this.checkIn(habit.id, this.nextStatus(habit.todayStatus));
+  }
+
+  private nextStatus(current: HabitLogStatus | null): HabitLogStatus {
+    switch (current) {
+      case 'Completed':
+        return 'Partial';
+      case 'Partial':
+        return 'Missed';
+      case 'Missed':
+        return 'Completed';
+      default:
+        return 'Completed';
+    }
   }
 
   checkIn(habitId: string, status: HabitLogStatus): void {
