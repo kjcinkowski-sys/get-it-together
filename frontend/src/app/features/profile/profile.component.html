@@ -1,0 +1,106 @@
+<div class="form-page">
+  <div class="form-card card">
+    <p class="eyebrow">Your account</p>
+    <h1>Profile</h1>
+    <p class="subtitle">Update how you show up and keep your account details current.</p>
+
+    @if (loading()) {
+      <p class="muted">Loading…</p>
+    } @else if (loadError()) {
+      <p class="error-text">Could not load your profile. Please refresh.</p>
+      <a routerLink="/" class="btn btn-secondary">Back to today</a>
+    } @else {
+      <section class="avatar-section">
+        <div class="avatar" aria-hidden="true">
+          @if (avatarUrl(); as url) {
+            <img [src]="url" alt="" />
+          } @else {
+            <span class="avatar-initials">{{ initials() }}</span>
+          }
+        </div>
+        <div class="avatar-controls">
+          <label class="btn btn-secondary avatar-upload">
+            {{ avatarUrl() ? 'Change photo' : 'Add photo' }}
+            <input type="file" accept="image/*" (change)="onAvatarSelected($event)" />
+          </label>
+          @if (avatarUrl()) {
+            <button type="button" class="btn btn-ghost" (click)="removeAvatar()">Remove</button>
+          }
+        </div>
+      </section>
+      @if (avatarError()) {
+        <p class="error-text">{{ avatarError() }}</p>
+      }
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <label class="field">
+          <span>Display name</span>
+          <input type="text" formControlName="displayName" autocomplete="name" />
+        </label>
+
+        <label class="field">
+          <span>Email</span>
+          <input type="email" formControlName="email" autocomplete="email" />
+        </label>
+
+        <label class="field">
+          <span>Time zone</span>
+          <small>Used to work out when "today" ends for your streaks.</small>
+          <select formControlName="timeZone">
+            @for (zone of timeZones; track zone) {
+              <option [value]="zone">{{ zone }}</option>
+            }
+          </select>
+        </label>
+
+        @if (profileError()) {
+          <p class="error-text">{{ profileError() }}</p>
+        }
+        @if (profileSaved()) {
+          <p class="success-text">Profile saved.</p>
+        }
+
+        <div class="actions">
+          <a routerLink="/" class="btn btn-secondary">Back to today</a>
+          <button type="submit" class="btn" [disabled]="profileForm.invalid || savingProfile()">
+            {{ savingProfile() ? 'Saving…' : 'Save changes' }}
+          </button>
+        </div>
+      </form>
+
+      <hr class="divider" />
+
+      <h2 class="section-title">Change password</h2>
+      <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+        <label class="field">
+          <span>Current password</span>
+          <input type="password" formControlName="currentPassword" autocomplete="current-password" />
+        </label>
+
+        <label class="field">
+          <span>New password</span>
+          <input type="password" formControlName="newPassword" autocomplete="new-password" />
+          <small>At least 8 characters.</small>
+        </label>
+
+        <label class="field">
+          <span>Confirm new password</span>
+          <input type="password" formControlName="confirmPassword" autocomplete="new-password" />
+        </label>
+
+        @if (passwordError()) {
+          <p class="error-text">{{ passwordError() }}</p>
+        }
+        @if (passwordSaved()) {
+          <p class="success-text">Password changed.</p>
+        }
+
+        <div class="actions">
+          <button type="submit" class="btn" [disabled]="passwordForm.invalid || savingPassword()">
+            {{ savingPassword() ? 'Updating…' : 'Update password' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

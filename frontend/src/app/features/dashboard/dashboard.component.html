@@ -5,7 +5,16 @@
   </div>
   <div class="header-actions">
     @if (authService.currentUser(); as user) {
-      <span class="user-name">{{ user.displayName }}</span>
+      <a routerLink="/profile" class="profile-link" [title]="'Edit ' + user.displayName + '’s profile'">
+        <span class="user-name">{{ user.displayName }}</span>
+        <span class="profile-avatar" aria-hidden="true">
+          @if (user.avatarUrl) {
+            <img [src]="user.avatarUrl" alt="" />
+          } @else {
+            {{ initials(user.displayName) }}
+          }
+        </span>
+      </a>
     }
     <button type="button" class="btn btn-ghost" (click)="logout()">Log out</button>
   </div>

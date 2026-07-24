@@ -61,7 +61,7 @@ public static class AuthEndpoints
             }
 
             var token = tokens.GenerateToken(user);
-            return Results.Ok(new AuthResponse(token, new UserResponse(user.Id, user.Email, user.DisplayName)));
+            return Results.Ok(new AuthResponse(token, user.ToUserResponse()));
         }).RequireRateLimiting("auth");
 
         group.MapPost("/login", async (LoginRequest request, AppDbContext db, JwtTokenService tokens) =>
@@ -82,7 +82,7 @@ public static class AuthEndpoints
             }
 
             var token = tokens.GenerateToken(user);
-            return Results.Ok(new AuthResponse(token, new UserResponse(user.Id, user.Email, user.DisplayName)));
+            return Results.Ok(new AuthResponse(token, user.ToUserResponse()));
         }).RequireRateLimiting("auth");
 
         group.MapGet("/me", async (ClaimsPrincipal claims, AppDbContext db) =>
@@ -90,7 +90,7 @@ public static class AuthEndpoints
             var user = await db.Users.FindAsync(claims.GetUserId());
             return user is null
                 ? Results.NotFound()
-                : Results.Ok(new UserResponse(user.Id, user.Email, user.DisplayName));
+                : Results.Ok(user.ToUserResponse());
         }).RequireAuthorization();
     }
 }

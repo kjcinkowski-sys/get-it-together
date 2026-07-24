@@ -116,6 +116,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthEndpoints();
+app.MapProfileEndpoints();
 app.MapIdentityEndpoints();
 app.MapHabitEndpoints();
 app.MapHabitLogEndpoints();

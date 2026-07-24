@@ -99,4 +99,14 @@ export class DashboardComponent implements OnInit {
   logout(): void {
     this.authService.logout();
   }
+
+  initials(displayName: string): string {
+    const name = displayName.trim();
+    if (!name) return '?';
+    return name
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
+  }
 }
