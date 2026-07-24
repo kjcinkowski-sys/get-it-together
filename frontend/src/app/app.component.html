@@ -1,1 +1,13 @@
+@if (booting()) {
+  <div class="app-splash" [class.app-splash--out]="splashLeaving()">
+    <app-logo [animated]="true" [size]="76" [showWord]="true" />
+  </div>
+}
+
+@if (navigating()) {
+  <div class="app-loading">
+    <app-logo [loop]="true" [size]="56" [showWord]="false" />
+  </div>
+}
+
 <router-outlet />

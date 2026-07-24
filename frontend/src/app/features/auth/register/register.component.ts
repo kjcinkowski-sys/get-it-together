@@ -1,12 +1,26 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { LogoComponent } from '../../../shared/logo/logo.component';
+
+function passwordsMatch(control: AbstractControl): ValidationErrors | null {
+  const password = control.get('password')?.value;
+  const confirmPassword = control.get('confirmPassword')?.value;
+  if (!password || !confirmPassword) return null;
+  return password === confirmPassword ? null : { passwordMismatch: true };
+}
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, LogoComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
@@ -15,11 +29,15 @@ export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly form = this.fb.nonNullable.group({
-    displayName: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-  });
+  readonly form = this.fb.nonNullable.group(
+    {
+      displayName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required],
+    },
+    { validators: passwordsMatch },
+  );
 
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);

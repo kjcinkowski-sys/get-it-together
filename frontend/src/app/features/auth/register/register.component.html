@@ -1,6 +1,6 @@
 <div class="auth-page">
   <div class="auth-card card">
-    <p class="eyebrow">Get It Together</p>
+    <app-logo />
     <h1>Create your account</h1>
     <p class="subtitle">Start tracking the habits behind who you want to become.</p>
 
@@ -20,6 +20,15 @@
         <input type="password" formControlName="password" autocomplete="new-password" />
         <small>At least 8 characters.</small>
       </label>
+
+      <label class="field">
+        <span>Confirm password</span>
+        <input type="password" formControlName="confirmPassword" autocomplete="new-password" />
+      </label>
+
+      @if (form.hasError('passwordMismatch') && form.get('confirmPassword')?.touched) {
+        <p class="error-text">Passwords don't match.</p>
+      }
 
       @if (errorMessage()) {
         <p class="error-text">{{ errorMessage() }}</p>
