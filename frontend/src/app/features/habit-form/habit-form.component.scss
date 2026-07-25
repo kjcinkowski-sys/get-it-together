@@ -6,15 +6,17 @@
   gap: 8px;
 }
 
-.day-chip {
-  flex: 1 1 auto;
-  min-width: 44px;
-  padding: 8px 10px;
+.day-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 50%;
   background: var(--surface);
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition:
@@ -23,17 +25,34 @@
     color 0.15s ease;
 }
 
-.day-chip:hover {
+.day-circle:hover {
   border-color: var(--accent);
 }
 
-.day-chip.active {
+.day-circle.active {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--accent-ink);
 }
 
+.daily-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.daily-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
 .field-hint {
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 0.85rem;
 }

@@ -20,7 +20,7 @@ function identityWith(status: HabitLogStatus | null): TodayIdentity[] {
       strength: 50,
       stage: 1,
       stageName: 'Sprout',
-      habits: [{ id: 'h1', name: 'Run', frequencyType: 'Daily', targetPerWeek: 5, todayStatus: status }],
+      habits: [{ id: 'h1', name: 'Run', scheduledDays: [1, 3, 5], todayStatus: status }],
     },
   ];
 }

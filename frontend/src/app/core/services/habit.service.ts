@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { FrequencyType, Habit } from '../models/habit.model';
+import { Habit } from '../models/habit.model';
 
 @Injectable({ providedIn: 'root' })
 export class HabitService {
@@ -14,34 +14,15 @@ export class HabitService {
     return this.http.get<Habit[]>(`${this.baseUrl}/identities/${identityId}/habits`);
   }
 
-  create(
-    identityId: string,
-    name: string,
-    frequencyType: FrequencyType,
-    targetPerWeek: number,
-    scheduledDays: number[],
-  ): Observable<Habit> {
+  create(identityId: string, name: string, scheduledDays: number[]): Observable<Habit> {
     return this.http.post<Habit>(`${this.baseUrl}/identities/${identityId}/habits`, {
       name,
-      frequencyType,
-      targetPerWeek,
       scheduledDays,
     });
   }
 
-  update(
-    id: string,
-    name: string,
-    frequencyType: FrequencyType,
-    targetPerWeek: number,
-    scheduledDays: number[],
-  ): Observable<Habit> {
-    return this.http.put<Habit>(`${this.baseUrl}/habits/${id}`, {
-      name,
-      frequencyType,
-      targetPerWeek,
-      scheduledDays,
-    });
+  update(id: string, name: string, scheduledDays: number[]): Observable<Habit> {
+    return this.http.put<Habit>(`${this.baseUrl}/habits/${id}`, { name, scheduledDays });
   }
 
   archive(id: string): Observable<void> {

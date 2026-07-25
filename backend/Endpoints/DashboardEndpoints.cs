@@ -38,8 +38,6 @@ public static class DashboardEndpoints
                         {
                             h.Id,
                             h.Name,
-                            h.FrequencyType,
-                            h.TargetPerWeek,
                             h.ScheduledDays,
                             h.CreatedAt,
                             TodayStatus = h.HabitLogs
@@ -59,8 +57,7 @@ public static class DashboardEndpoints
             var response = identities.Select(i =>
             {
                 var histories = i.Habits.Select(h => new StrengthCalculator.HabitHistory(
-                    h.FrequencyType,
-                    h.TargetPerWeek,
+                    DayMask.ToDays(h.ScheduledDays).Count,
                     DateOnly.FromDateTime(h.CreatedAt),
                     h.CompletedDates));
 
@@ -81,8 +78,7 @@ public static class DashboardEndpoints
                         .Select(h => new TodayHabitResponse(
                             h.Id,
                             h.Name,
-                            h.FrequencyType,
-                            h.TargetPerWeek,
+                            DayMask.ToDays(h.ScheduledDays),
                             h.TodayStatus))
                         .ToList());
             }).ToList();

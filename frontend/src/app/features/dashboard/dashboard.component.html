@@ -61,7 +61,7 @@
                   <div class="habit-top">
                     <div class="habit-info">
                       <span class="habit-name">{{ habit.name }}</span>
-                      <span class="habit-meta">{{ habit.frequencyType }} · {{ habit.targetPerWeek }}x/week</span>
+                      <span class="habit-meta">{{ scheduleLabel(habit.scheduledDays) }}</span>
                     </div>
                     <button
                       type="button"

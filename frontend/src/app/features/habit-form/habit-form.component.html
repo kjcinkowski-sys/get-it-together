@@ -10,35 +10,28 @@
         <input type="text" formControlName="name" placeholder="Run 20 minutes" />
       </label>
 
-      <label class="field">
-        <span>Frequency</span>
-        <select formControlName="frequencyType">
-          <option value="Daily">Daily</option>
-          <option value="TimesPerWeek">A few times a week</option>
-          <option value="Weekly">Weekly</option>
-        </select>
-      </label>
-
-      <label class="field">
-        <span>Target per week</span>
-        <input type="number" formControlName="targetPerWeek" min="1" max="7" />
-      </label>
-
       <div class="field">
         <span>Days</span>
         <div class="day-picker" role="group" aria-label="Days of the week">
           @for (day of weekdays; track day.value) {
             <button
               type="button"
-              class="day-chip"
+              class="day-circle"
               [class.active]="isDaySelected(day.value)"
+              [attr.aria-label]="day.name"
               [attr.aria-pressed]="isDaySelected(day.value)"
               (click)="toggleDay(day.value)"
             >
-              {{ day.label }}
+              {{ day.letter }}
             </button>
           }
         </div>
+
+        <label class="daily-toggle">
+          <input type="checkbox" [checked]="allDaysSelected()" (change)="toggleDaily()" />
+          <span>Daily</span>
+        </label>
+
         @if (!hasDaySelected()) {
           <span class="field-hint error-text">Pick at least one day.</span>
         }
