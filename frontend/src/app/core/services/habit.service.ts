@@ -14,16 +14,34 @@ export class HabitService {
     return this.http.get<Habit[]>(`${this.baseUrl}/identities/${identityId}/habits`);
   }
 
-  create(identityId: string, name: string, frequencyType: FrequencyType, targetPerWeek: number): Observable<Habit> {
+  create(
+    identityId: string,
+    name: string,
+    frequencyType: FrequencyType,
+    targetPerWeek: number,
+    scheduledDays: number[],
+  ): Observable<Habit> {
     return this.http.post<Habit>(`${this.baseUrl}/identities/${identityId}/habits`, {
       name,
       frequencyType,
       targetPerWeek,
+      scheduledDays,
     });
   }
 
-  update(id: string, name: string, frequencyType: FrequencyType, targetPerWeek: number): Observable<Habit> {
-    return this.http.put<Habit>(`${this.baseUrl}/habits/${id}`, { name, frequencyType, targetPerWeek });
+  update(
+    id: string,
+    name: string,
+    frequencyType: FrequencyType,
+    targetPerWeek: number,
+    scheduledDays: number[],
+  ): Observable<Habit> {
+    return this.http.put<Habit>(`${this.baseUrl}/habits/${id}`, {
+      name,
+      frequencyType,
+      targetPerWeek,
+      scheduledDays,
+    });
   }
 
   archive(id: string): Observable<void> {

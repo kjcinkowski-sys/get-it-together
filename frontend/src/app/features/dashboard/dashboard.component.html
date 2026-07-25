@@ -53,7 +53,7 @@
           </div>
 
           @if (identity.habits.length === 0) {
-            <p class="muted">No habits yet under this identity.</p>
+            <p class="muted">Nothing scheduled for today.</p>
           } @else {
             <ul class="habit-list">
               @for (habit of identity.habits; track habit.id) {

@@ -6,6 +6,8 @@ export interface Habit {
   name: string;
   frequencyType: FrequencyType;
   targetPerWeek: number;
+  /** Weekdays this habit is scheduled on, as day numbers (0 = Sunday … 6 = Saturday). */
+  scheduledDays: number[];
   isArchived: boolean;
   createdAt: string;
 }

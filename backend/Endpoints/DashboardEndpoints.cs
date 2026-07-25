@@ -40,6 +40,7 @@ public static class DashboardEndpoints
                             h.Name,
                             h.FrequencyType,
                             h.TargetPerWeek,
+                            h.ScheduledDays,
                             h.CreatedAt,
                             TodayStatus = h.HabitLogs
                                 .Where(l => l.CompletedOn == today)
@@ -74,6 +75,9 @@ public static class DashboardEndpoints
                     stage,
                     StrengthCalculator.StageName(stage),
                     i.Habits
+                        // Strength is scored across every habit above; the list the user
+                        // checks in on, though, is just the habits scheduled for today.
+                        .Where(h => DayMask.Includes(h.ScheduledDays, today.DayOfWeek))
                         .Select(h => new TodayHabitResponse(
                             h.Id,
                             h.Name,
