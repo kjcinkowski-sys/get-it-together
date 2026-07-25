@@ -42,6 +42,18 @@ export class AuthService {
     return localStorage.getItem(TOKEN_KEY);
   }
 
+  /**
+   * Merge fresh profile fields into the cached user so the header (name, avatar)
+   * updates immediately after the profile page saves — no re-login required.
+   */
+  updateCurrentUser(changes: Partial<User>): void {
+    const current = this.currentUserSignal();
+    if (!current) return;
+    const updated = { ...current, ...changes };
+    localStorage.setItem(USER_KEY, JSON.stringify(updated));
+    this.currentUserSignal.set(updated);
+  }
+
   private setSession(response: AuthResponse): void {
     localStorage.setItem(TOKEN_KEY, response.token);
     localStorage.setItem(USER_KEY, JSON.stringify(response.user));

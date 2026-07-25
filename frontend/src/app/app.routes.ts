@@ -16,6 +16,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register/register.component').then((m) => m.RegisterComponent),
   },
   {
+    path: 'profile',
+    loadComponent: () => import('./features/profile/profile.component').then((m) => m.ProfileComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'identities/new',
     loadComponent: () =>
       import('./features/identity-form/identity-form.component').then((m) => m.IdentityFormComponent),
