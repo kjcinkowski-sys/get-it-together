@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ProfileService } from '../../core/services/profile.service';
+import { ThemePreference, ThemeService } from '../../core/services/theme.service';
 
 /** Largest file we'll turn into a data URL, matching the API's ~1.5 MB avatar cap. */
 const MAX_AVATAR_BYTES = 1.5 * 1024 * 1024;
@@ -48,6 +49,13 @@ export class ProfileComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
+  readonly theme = inject(ThemeService);
+
+  readonly themeOptions: ReadonlyArray<{ value: ThemePreference; label: string }> = [
+    { value: 'system', label: 'System' },
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+  ];
 
   readonly timeZones = supportedTimeZones();
   readonly detectedTimeZone = detectTimeZone();

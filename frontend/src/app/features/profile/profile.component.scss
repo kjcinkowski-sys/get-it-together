@@ -68,6 +68,49 @@
   margin-bottom: 1rem;
 }
 
+.appearance-hint {
+  margin-top: -0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+/* Segmented control for the theme preference — applies instantly, so no Save button. */
+.theme-options {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.theme-option {
+  flex: 1;
+  min-height: 44px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.theme-option:hover {
+  border-color: var(--accent);
+}
+
+.theme-option.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+
+.theme-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .success-text {
   color: var(--accent);
   background: var(--accent-soft);

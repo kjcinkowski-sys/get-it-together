@@ -4,7 +4,6 @@
     <h1>Today</h1>
   </div>
   <div class="header-actions">
-    <app-theme-toggle />
     @if (authService.currentUser(); as user) {
       <a routerLink="/profile" class="profile-link" [title]="'Edit ' + user.displayName + '’s profile'">
         <span class="user-name">{{ user.displayName }}</span>

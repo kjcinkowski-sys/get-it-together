@@ -70,6 +70,28 @@
 
       <hr class="divider" />
 
+      <section class="appearance">
+        <h2 class="section-title">Appearance</h2>
+        <p class="muted appearance-hint">
+          Choose how Get It Together looks. "System" follows your device setting.
+        </p>
+        <div class="theme-options" role="group" aria-label="Theme">
+          @for (option of themeOptions; track option.value) {
+            <button
+              type="button"
+              class="theme-option"
+              [class.selected]="theme.preference() === option.value"
+              [attr.aria-pressed]="theme.preference() === option.value"
+              (click)="theme.setPreference(option.value)"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+      </section>
+
+      <hr class="divider" />
+
       <h2 class="section-title">Change password</h2>
       <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
         <label class="field">
