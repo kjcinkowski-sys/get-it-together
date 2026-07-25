@@ -1,12 +1,11 @@
 import { CompanionType } from './companion.model';
-import { FrequencyType } from './habit.model';
 import { HabitLogStatus } from './habit-log.model';
 
 export interface TodayHabit {
   id: string;
   name: string;
-  frequencyType: FrequencyType;
-  targetPerWeek: number;
+  /** Weekdays this habit is scheduled on, as day numbers (0 = Sunday … 6 = Saturday). */
+  scheduledDays: number[];
   todayStatus: HabitLogStatus | null;
 }
 

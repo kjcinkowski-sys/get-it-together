@@ -1,5 +1,3 @@
-using IdentityHabits.Api.Models;
-
 namespace IdentityHabits.Api.Services;
 
 /// <summary>
@@ -30,8 +28,7 @@ public static class StrengthCalculator
 
     /// <summary>One habit's history, decoupled from EF so this stays a pure function.</summary>
     public record HabitHistory(
-        FrequencyType FrequencyType,
-        int TargetPerWeek,
+        int ScheduledDaysPerWeek,
         DateOnly CreatedOn,
         IReadOnlyCollection<DateOnly> CompletedDates);
 
@@ -83,11 +80,9 @@ public static class StrengthCalculator
 
     private static (double Score, bool HadAnyWeek) ScoreHabit(HabitHistory habit, DateOnly today)
     {
-        // Treat a daily habit as a target of 7/week so both frequency types score on the
-        // same 0–1 scale ("did you hit target this week?").
-        int expectedPerWeek = habit.FrequencyType == FrequencyType.Daily
-            ? 7
-            : Math.Max(1, habit.TargetPerWeek);
+        // The weekly target is simply how many days the habit is scheduled on, so every
+        // habit scores on the same 0–1 scale ("did you hit your scheduled days this week?").
+        int expectedPerWeek = Math.Max(1, habit.ScheduledDaysPerWeek);
 
         double weightedScore = 0;
         double weightTotal = 0;

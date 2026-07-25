@@ -5,8 +5,7 @@ namespace IdentityHabits.Api.Dtos;
 public record TodayHabitResponse(
     Guid Id,
     string Name,
-    FrequencyType FrequencyType,
-    int TargetPerWeek,
+    IReadOnlyList<int> ScheduledDays,
     HabitLogStatus? TodayStatus);
 
 public record TodayIdentityResponse(

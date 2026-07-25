@@ -100,6 +100,18 @@ export class DashboardComponent implements OnInit {
     this.authService.logout();
   }
 
+  /** A short human summary of a habit's schedule, e.g. "Daily" or "Mon · Wed · Fri". */
+  scheduleLabel(scheduledDays: number[]): string {
+    if (scheduledDays.length >= 7) return 'Daily';
+
+    const abbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weekOrder = [1, 2, 3, 4, 5, 6, 0];
+    return weekOrder
+      .filter((day) => scheduledDays.includes(day))
+      .map((day) => abbr[day])
+      .join(' · ');
+  }
+
   initials(displayName: string): string {
     const name = displayName.trim();
     if (!name) return '?';

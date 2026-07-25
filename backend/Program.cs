@@ -17,8 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Serialize enums (FrequencyType, HabitLogStatus) as strings, not numbers, so the
-// frontend and .http samples can use readable values like "Daily" or "Completed".
+// Serialize enums (HabitLogStatus, CompanionType) as strings, not numbers, so the
+// frontend and .http samples can use readable values like "Completed".
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 

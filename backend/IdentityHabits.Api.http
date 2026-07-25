@@ -71,8 +71,7 @@ Content-Type: application/json
 
 {
   "name": "Run 20 minutes",
-  "frequencyType": "Daily",
-  "targetPerWeek": 7
+  "scheduledDays": [1, 3, 5]
 }
 
 ### Today's dashboard
