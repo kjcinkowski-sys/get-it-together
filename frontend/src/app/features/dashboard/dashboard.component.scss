@@ -238,15 +238,15 @@
 }
 
 .status-btn.active.status-partial {
-  background: #c17a3d;
-  border-color: #c17a3d;
-  color: #fff;
+  background: var(--warn);
+  border-color: var(--warn);
+  color: var(--warn-ink);
 }
 
 .status-btn.active.status-missed {
   background: var(--danger);
   border-color: var(--danger);
-  color: #fff;
+  color: var(--danger-ink);
 }
 
 .identity-footer {

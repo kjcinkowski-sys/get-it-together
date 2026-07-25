@@ -3,6 +3,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CompanionComponent } from '../../shared/companion/companion.component';
 import { LogoComponent } from '../../shared/logo/logo.component';
+import { ThemeToggleComponent } from '../../shared/theme-toggle/theme-toggle.component';
 import { TodayIdentity } from '../../core/models/dashboard.model';
 import { HabitLogStatus } from '../../core/models/habit-log.model';
 import { AuthService } from '../../core/services/auth.service';
@@ -19,7 +20,7 @@ function todayIso(): string {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NgClass, RouterLink, CompanionComponent, LogoComponent],
+  imports: [NgClass, RouterLink, CompanionComponent, LogoComponent, ThemeToggleComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
