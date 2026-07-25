@@ -4,6 +4,7 @@
     <h1>Today</h1>
   </div>
   <div class="header-actions">
+    <a routerLink="/stats" class="btn btn-ghost">My stats</a>
     @if (authService.currentUser(); as user) {
       <a routerLink="/profile" class="profile-link" [title]="'Edit ' + user.displayName + '’s profile'">
         <span class="user-name">{{ user.displayName }}</span>
@@ -39,15 +40,15 @@
           <div class="identity-header">
             <app-companion
               [type]="identity.companion"
-              [strength]="identity.strength"
+              [strength]="identity.stageProgress"
               [stage]="identity.stage"
               [size]="56"
             />
             <div class="identity-heading">
               <h2>{{ identity.statement }}</h2>
-              <div class="strength" [title]="identity.strength + '% consistency strength'">
-                <span class="stage-name">{{ identity.stageName }}</span>
-                <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.strength"></span></span>
+              <div class="strength" [title]="growthTitle(identity)">
+                <span class="stage-name">{{ identity.stageName }} · {{ growthCaption(identity) }}</span>
+                <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.stageProgress"></span></span>
               </div>
             </div>
           </div>
@@ -61,7 +62,14 @@
                   <div class="habit-top">
                     <div class="habit-info">
                       <span class="habit-name">{{ habit.name }}</span>
-                      <span class="habit-meta">{{ scheduleLabel(habit.scheduledDays) }}</span>
+                      <span class="habit-meta">
+                        {{ scheduleLabel(habit.scheduledDays) }}
+                        @if (habit.currentStreak > 0) {
+                          <span class="streak-badge" [title]="habit.currentStreak + ' in a row'">
+                            🔥 {{ habit.currentStreak }}
+                          </span>
+                        }
+                      </span>
                     </div>
                     <button
                       type="button"

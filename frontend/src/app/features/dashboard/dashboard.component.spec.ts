@@ -17,10 +17,11 @@ function identityWith(status: HabitLogStatus | null): TodayIdentity[] {
       id: 'i1',
       statement: 'I am a runner',
       companion: 'Sprite',
-      strength: 50,
       stage: 1,
-      stageName: 'Sprout',
-      habits: [{ id: 'h1', name: 'Run', scheduledDays: [1, 3, 5], todayStatus: status }],
+      stageName: 'Spark',
+      stageProgress: 50,
+      streakDays: 3,
+      habits: [{ id: 'h1', name: 'Run', scheduledDays: [1, 3, 5], currentStreak: 2, todayStatus: status }],
     },
   ];
 }

@@ -121,5 +121,6 @@ app.MapIdentityEndpoints();
 app.MapHabitEndpoints();
 app.MapHabitLogEndpoints();
 app.MapDashboardEndpoints();
+app.MapStatsEndpoints();
 
 app.Run();

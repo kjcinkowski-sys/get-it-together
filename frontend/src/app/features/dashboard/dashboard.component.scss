@@ -189,6 +189,16 @@
   color: var(--faint);
 }
 
+.streak-badge {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .habit-archive {
   flex: none;
   width: 32px;

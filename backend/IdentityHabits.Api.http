@@ -78,4 +78,8 @@ Content-Type: application/json
 GET {{IdentityHabits.Api_HostAddress}}/api/dashboard/today
 Authorization: Bearer {{login.response.body.token}}
 
+### My stats (streaks & growth per habit)
+GET {{IdentityHabits.Api_HostAddress}}/api/stats
+Authorization: Bearer {{login.response.body.token}}
+
 ###

@@ -2,14 +2,16 @@ using IdentityHabits.Api.Models;
 
 namespace IdentityHabits.Api.Dtos;
 
-public record TodayHabitResponse(
+public record StatsHabitResponse(
     Guid Id,
     string Name,
     IReadOnlyList<int> ScheduledDays,
     int CurrentStreak,
-    HabitLogStatus? TodayStatus);
+    int LongestStreak,
+    int TotalCompletions,
+    int CompletionRate);
 
-public record TodayIdentityResponse(
+public record StatsIdentityResponse(
     Guid Id,
     string Statement,
     CompanionType Companion,
@@ -17,4 +19,4 @@ public record TodayIdentityResponse(
     string StageName,
     int StageProgress,
     int StreakDays,
-    List<TodayHabitResponse> Habits);
+    List<StatsHabitResponse> Habits);

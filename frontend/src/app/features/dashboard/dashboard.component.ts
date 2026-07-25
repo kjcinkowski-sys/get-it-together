@@ -100,6 +100,19 @@ export class DashboardComponent implements OnInit {
     this.authService.logout();
   }
 
+  /** Short caption next to the stage name, e.g. "45% to next" or "fully grown". */
+  growthCaption(identity: TodayIdentity): string {
+    if (identity.stage >= 4) return 'fully grown';
+    return `${identity.stageProgress}% to next`;
+  }
+
+  /** Tooltip describing the companion's growth. */
+  growthTitle(identity: TodayIdentity): string {
+    const streak = identity.streakDays === 1 ? '1-day streak' : `${identity.streakDays}-day streak`;
+    if (identity.stage >= 4) return `${streak} · fully grown`;
+    return `${streak} · ${identity.stageProgress}% to the next stage`;
+  }
+
   /** A short human summary of a habit's schedule, e.g. "Daily" or "Mon · Wed · Fri". */
   scheduleLabel(scheduledDays: number[]): string {
     if (scheduledDays.length >= 7) return 'Daily';
