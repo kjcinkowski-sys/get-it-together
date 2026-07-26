@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { IsActiveMatchOptions, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { LogoComponent } from '../logo/logo.component';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -19,6 +19,15 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class ShellComponent {
   readonly menuOpen = signal(false);
+
+  // The "My Identity" link points at '/', which also carries a `?date=` query param when a
+  // past day is being viewed. Match on the path only so it stays highlighted regardless.
+  readonly homeActiveOptions: IsActiveMatchOptions = {
+    paths: 'exact',
+    queryParams: 'ignored',
+    matrixParams: 'ignored',
+    fragment: 'ignored',
+  };
 
   constructor(readonly authService: AuthService) {}
 

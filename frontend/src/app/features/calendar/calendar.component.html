@@ -1,0 +1,38 @@
+<header class="page-header">
+  <h1>Calendar</h1>
+  <p class="muted">Pick a day to review how your habits and companions looked then.</p>
+</header>
+
+<main class="calendar">
+  <div class="cal-card card">
+    <div class="cal-toolbar">
+      <button type="button" class="cal-arrow" aria-label="Previous month" (click)="previousMonth()">‹</button>
+      <span class="cal-month">{{ monthLabel() }}</span>
+      <button type="button" class="cal-arrow" aria-label="Next month" (click)="nextMonth()">›</button>
+    </div>
+
+    <div class="cal-grid cal-weekdays" aria-hidden="true">
+      @for (label of weekdayLabels; track label) {
+        <span class="cal-weekday">{{ label }}</span>
+      }
+    </div>
+
+    @for (week of weeks(); track $index) {
+      <div class="cal-grid">
+        @for (cell of week; track cell.iso) {
+          <button
+            type="button"
+            class="cal-day"
+            [class.cal-day--muted]="!cell.inMonth"
+            [class.cal-day--today]="cell.isToday"
+            [disabled]="cell.isFuture"
+            [attr.aria-label]="cell.iso"
+            (click)="selectDay(cell)"
+          >
+            {{ cell.day }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+</main>

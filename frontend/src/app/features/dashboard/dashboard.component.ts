@@ -1,6 +1,6 @@
 import { NgClass } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, computed, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CompanionComponent } from '../../shared/companion/companion.component';
 import { TodayIdentity } from '../../core/models/dashboard.model';
 import { HabitLogStatus } from '../../core/models/habit-log.model';
@@ -8,12 +8,7 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { HabitLogService } from '../../core/services/habit-log.service';
 import { HabitService } from '../../core/services/habit.service';
 import { IdentityService } from '../../core/services/identity.service';
-
-function todayIso(): string {
-  const now = new Date();
-  const localMidnightOffsetMs = now.getTimezoneOffset() * 60_000;
-  return new Date(now.getTime() - localMidnightOffsetMs).toISOString().slice(0, 10);
-}
+import { addDays, isIsoDate, todayIso } from '../../core/util/date.util';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,9 +23,17 @@ export class DashboardComponent implements OnInit {
   readonly pendingHabitId = signal<string | null>(null);
 
   readonly today = todayIso();
+  /** The day currently on screen, driven by the `date` query param (defaults to today). */
+  readonly selectedDate = signal(this.today);
+  readonly isToday = computed(() => this.selectedDate() === this.today);
+  readonly canGoForward = computed(() => this.selectedDate() < this.today);
+  readonly dateLabel = computed(() => this.labelFor(this.selectedDate()));
+
   readonly statuses: HabitLogStatus[] = ['Completed', 'Partial', 'Missed'];
 
   constructor(
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly dashboardService: DashboardService,
     private readonly habitLogService: HabitLogService,
     private readonly habitService: HabitService,
@@ -38,14 +41,20 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.load();
+    // The URL owns the viewed day, so arrows, the calendar, and the back button all agree.
+    this.route.queryParamMap.subscribe((params) => {
+      const raw = params.get('date');
+      const date = isIsoDate(raw) && raw <= this.today ? raw : this.today;
+      this.selectedDate.set(date);
+      this.load();
+    });
   }
 
   load(): void {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.dashboardService.today().subscribe({
+    this.dashboardService.forDate(this.selectedDate()).subscribe({
       next: (identities) => {
         this.identities.set(identities);
         this.loading.set(false);
@@ -57,16 +66,43 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  previousDay(): void {
+    this.goToDate(addDays(this.selectedDate(), -1));
+  }
+
+  nextDay(): void {
+    if (this.canGoForward()) {
+      this.goToDate(addDays(this.selectedDate(), 1));
+    }
+  }
+
+  goToToday(): void {
+    this.goToDate(this.today);
+  }
+
+  private goToDate(date: string): void {
+    const target = date > this.today ? this.today : date;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      // Keep the URL clean on the default (today) view.
+      queryParams: { date: target === this.today ? null : target },
+      queryParamsHandling: 'merge',
+    });
+  }
+
   checkIn(habitId: string, status: HabitLogStatus): void {
+    // Only today is editable; past days are review-only.
+    if (!this.isToday()) return;
+
     this.pendingHabitId.set(habitId);
 
-    this.habitLogService.checkIn(habitId, this.today, status).subscribe({
+    this.habitLogService.checkIn(habitId, this.selectedDate(), status).subscribe({
       next: () => {
         this.identities.update((identities) =>
           identities.map((identity) => ({
             ...identity,
             habits: identity.habits.map((habit) =>
-              habit.id === habitId ? { ...habit, todayStatus: status } : habit,
+              habit.id === habitId ? { ...habit, status } : habit,
             ),
           })),
         );
@@ -116,5 +152,17 @@ export class DashboardComponent implements OnInit {
       .filter((day) => scheduledDays.includes(day))
       .map((day) => abbr[day])
       .join(' · ');
+  }
+
+  /** "Today" / "Yesterday" / "Mon, Jul 21" for the date navigator. */
+  private labelFor(date: string): string {
+    if (date === this.today) return 'Today';
+    if (date === addDays(this.today, -1)) return 'Yesterday';
+    const [year, month, day] = date.split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
   }
 }

@@ -6,9 +6,15 @@ committed roadmap — nothing here is scheduled until it's pulled into an actual
 
 Roughly ordered by suggested sequencing (see the bottom of the file for the rationale).
 
-> **Shipped:** the nav shell / sidebar extraction (formerly item #1) is done. Primary nav
-> now lives in a single `ShellComponent` (`frontend/src/app/shared/shell/`) that all
-> authenticated pages route through, so pages no longer carry duplicated headers.
+> **Shipped:**
+> - **Nav shell / sidebar** — primary nav now lives in a single `ShellComponent`
+>   (`frontend/src/app/shared/shell/`) that all authenticated pages route through, so pages
+>   no longer carry duplicated headers.
+> - **Multi-day view + calendar** — the dashboard (now "My Identity") takes a `?date=` query
+>   param with prev/next arrows, and a Calendar page in the sidebar jumps to any past day.
+>   Streaks and companion growth are computed as-of the viewed day. Check-ins remain
+>   editable only for today; past days are review-only. (Backend `/api/dashboard/today`
+>   accepts an optional `date`.)
 
 ---
 
@@ -25,30 +31,12 @@ Simplest version: a guided first-run flow (pick an identity → pick a companion
 habit → check in) that teaches the mental model, gated on a `hasOnboarded`-style profile
 flag. Client-side coach-marks / step flow; no heavy infra required.
 
-Note the synergy with the AI feature (#5): both are really about the "tell me who you
+Note the synergy with the AI feature (#4): both are really about the "tell me who you
 want to be" moment. Consider designing them together.
 
 ---
 
-## 2. Multi-day view toggle (see more than just today)
-
-**Effort: medium. Half of it already exists.**
-
-Check-in already passes an explicit date (`checkIn(habitId, this.today, status)`) and
-logs are stored per-date, so the write path is already date-flexible. What's hardcoded is
-the **read/dashboard** side: the component computes `today` and the endpoint is literally
-`/api/dashboard/today`, pinned to `DateTime.UtcNow`. The work is parameterizing that
-endpoint by date and adding date navigation in the UI.
-
-**Decisions to make:**
-- Back-dating rule: can users log yesterday? Future dates?
-- Retroactive edits change streaks and therefore companion growth — users will notice.
-- There's an existing UTC-vs-local-midnight subtlety in `todayIso()` that gets more
-  exposed once dates are user-selectable.
-
----
-
-## 3. More companions (from hand-drawn artwork)
+## 2. More companions (from hand-drawn artwork)
 
 **Effort: very doable — the codebase is well set up for it.**
 
@@ -72,7 +60,7 @@ lossy, so pick the approach before the art is finalized.
 
 ---
 
-## 4. Bad habits ("break a bad habit")
+## 3. Bad habits ("break a bad habit")
 
 **Effort: looks small, isn't. Scope as its own project.**
 
@@ -97,7 +85,7 @@ framing tends to land better than generic "step forward / step back" labels.
 
 ---
 
-## 5. AI habit suggestions
+## 4. AI habit suggestions
 
 **Effort: mechanically feasible; the real cost is operational.**
 
@@ -119,10 +107,9 @@ current self-contained stack has.
 ## Suggested sequencing & rationale
 
 1. **Onboarding tutorial** — highest ROI, teaches the core concept, low infra.
-2. **Multi-day toggle** — half-built already; needed before the app feels "real".
-3. **New companions** — parallelizable; gated on artwork, not on code.
-4. **Bad habits** — its own project; touches the growth engine.
-5. **AI suggestions** — last; fold into onboarding, keep it optional.
+2. **New companions** — parallelizable; gated on artwork, not on code.
+3. **Bad habits** — its own project; touches the growth engine.
+4. **AI suggestions** — last; fold into onboarding, keep it optional.
 
-The through-line for #1, #2, and #5: they're all really about the **first session**.
-Fixing what a brand-new user experiences is a bigger lever than any single feature.
+Onboarding (#1) and AI suggestions (#4) are both really about the **first session** —
+fixing what a brand-new user experiences is a bigger lever than any single feature.

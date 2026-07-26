@@ -19,6 +19,54 @@
   font-size: 1.6rem;
 }
 
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.date-nav__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.date-nav__arrow:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.date-nav__arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.date-nav__label {
+  min-width: 6.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.readonly-note {
+  background: var(--accent-soft);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
 .muted {
   color: var(--muted);
 }

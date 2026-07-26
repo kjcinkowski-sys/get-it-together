@@ -7,7 +7,7 @@ public record TodayHabitResponse(
     string Name,
     IReadOnlyList<int> ScheduledDays,
     int CurrentStreak,
-    HabitLogStatus? TodayStatus);
+    HabitLogStatus? Status);
 
 public record TodayIdentityResponse(
     Guid Id,

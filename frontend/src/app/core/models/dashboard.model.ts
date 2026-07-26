@@ -6,9 +6,10 @@ export interface TodayHabit {
   name: string;
   /** Weekdays this habit is scheduled on, as day numbers (0 = Sunday … 6 = Saturday). */
   scheduledDays: number[];
-  /** Consecutive completed scheduled occurrences up to today. */
+  /** Consecutive completed scheduled occurrences up to the viewed day. */
   currentStreak: number;
-  todayStatus: HabitLogStatus | null;
+  /** The habit's check-in status on the viewed day, if any. */
+  status: HabitLogStatus | null;
 }
 
 export interface TodayIdentity {
