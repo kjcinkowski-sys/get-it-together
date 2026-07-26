@@ -1,13 +1,12 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CompanionComponent } from '../../shared/companion/companion.component';
-import { LogoComponent } from '../../shared/logo/logo.component';
 import { StatsIdentity } from '../../core/models/stats.model';
 import { StatsService } from '../../core/services/stats.service';
 
 @Component({
   selector: 'app-stats',
-  imports: [RouterLink, CompanionComponent, LogoComponent],
+  imports: [RouterLink, CompanionComponent],
   templateUrl: './stats.component.html',
   styleUrl: './stats.component.scss',
 })

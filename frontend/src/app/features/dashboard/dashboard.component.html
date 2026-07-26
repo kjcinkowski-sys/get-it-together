@@ -1,24 +1,5 @@
-<header class="app-header">
-  <div class="app-header__brand">
-    <app-logo />
-    <h1>Today</h1>
-  </div>
-  <div class="header-actions">
-    <a routerLink="/stats" class="btn btn-ghost">My stats</a>
-    @if (authService.currentUser(); as user) {
-      <a routerLink="/profile" class="profile-link" [title]="'Edit ' + user.displayName + '’s profile'">
-        <span class="user-name">{{ user.displayName }}</span>
-        <span class="profile-avatar" aria-hidden="true">
-          @if (user.avatarUrl) {
-            <img [src]="user.avatarUrl" alt="" />
-          } @else {
-            {{ initials(user.displayName) }}
-          }
-        </span>
-      </a>
-    }
-    <button type="button" class="btn btn-ghost" (click)="logout()">Log out</button>
-  </div>
+<header class="page-header">
+  <h1>Today</h1>
 </header>
 
 <main class="dashboard">

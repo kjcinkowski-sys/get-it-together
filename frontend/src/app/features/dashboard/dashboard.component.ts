@@ -2,10 +2,8 @@ import { NgClass } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CompanionComponent } from '../../shared/companion/companion.component';
-import { LogoComponent } from '../../shared/logo/logo.component';
 import { TodayIdentity } from '../../core/models/dashboard.model';
 import { HabitLogStatus } from '../../core/models/habit-log.model';
-import { AuthService } from '../../core/services/auth.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { HabitLogService } from '../../core/services/habit-log.service';
 import { HabitService } from '../../core/services/habit.service';
@@ -19,7 +17,7 @@ function todayIso(): string {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NgClass, RouterLink, CompanionComponent, LogoComponent],
+  imports: [NgClass, RouterLink, CompanionComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -33,7 +31,6 @@ export class DashboardComponent implements OnInit {
   readonly statuses: HabitLogStatus[] = ['Completed', 'Partial', 'Missed'];
 
   constructor(
-    readonly authService: AuthService,
     private readonly dashboardService: DashboardService,
     private readonly habitLogService: HabitLogService,
     private readonly habitService: HabitService,
@@ -96,10 +93,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  logout(): void {
-    this.authService.logout();
-  }
-
   /** Short caption next to the stage name, e.g. "45% to next" or "fully grown". */
   growthCaption(identity: TodayIdentity): string {
     if (identity.stage >= 4) return 'fully grown';
@@ -123,15 +116,5 @@ export class DashboardComponent implements OnInit {
       .filter((day) => scheduledDays.includes(day))
       .map((day) => abbr[day])
       .join(' · ');
-  }
-
-  initials(displayName: string): string {
-    const name = displayName.trim();
-    if (!name) return '?';
-    return name
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part.charAt(0).toUpperCase())
-      .join('');
   }
 }
