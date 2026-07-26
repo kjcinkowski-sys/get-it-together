@@ -15,6 +15,8 @@ export interface TodayIdentity {
   statement: string;
   /** The companion chosen for this identity. */
   companion: CompanionType;
+  /** Optional user-given name for the companion. */
+  companionName: string | null;
   /** Consistency strength 0–100, derived from recent habit history. */
   strength: number;
   /** Companion-creature growth stage 0–4. */

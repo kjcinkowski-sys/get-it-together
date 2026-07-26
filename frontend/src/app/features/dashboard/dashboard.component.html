@@ -33,9 +33,15 @@
               [strength]="identity.strength"
               [stage]="identity.stage"
               [size]="56"
+              [clickable]="true"
+              [action]="companionActions()[identity.id]"
+              (enlarge)="openEnlarge(identity)"
             />
             <div class="identity-heading">
               <h2>{{ identity.statement }}</h2>
+              @if (identity.companionName) {
+                <span class="companion-name">{{ identity.companionName }}</span>
+              }
               <div class="strength" [title]="identity.strength + '% consistency strength'">
                 <span class="stage-name">{{ identity.stageName }}</span>
                 <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.strength"></span></span>
@@ -99,4 +105,46 @@
   <nav class="action-bar">
     <a routerLink="/identities/new" class="btn action-bar__add">+ Add identity</a>
   </nav>
+}
+
+@if (enlarged(); as identity) {
+  <div class="modal-backdrop" (click)="closeEnlarge()">
+    <div class="modal-card card" (click)="$event.stopPropagation()">
+      <button type="button" class="modal-close" aria-label="Close" (click)="closeEnlarge()">✕</button>
+
+      <div class="modal-companion">
+        <app-companion
+          [type]="identity.companion"
+          [strength]="identity.strength"
+          [stage]="identity.stage"
+          [size]="200"
+          [clickable]="true"
+        />
+      </div>
+
+      <div class="strength modal-strength" [title]="identity.strength + '% consistency strength'">
+        <span class="stage-name">{{ identity.stageName }}</span>
+        <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.strength"></span></span>
+      </div>
+
+      <label class="field modal-name-field">
+        <span>Companion name</span>
+        <div class="modal-name-row">
+          <input
+            type="text"
+            [ngModel]="nameDraft()"
+            (ngModelChange)="nameDraft.set($event)"
+            placeholder="Give your companion a name"
+            maxlength="40"
+            (keyup.enter)="saveName()"
+          />
+          <button type="button" class="btn" [disabled]="savingName()" (click)="saveName()">
+            {{ savingName() ? 'Saving…' : 'Save' }}
+          </button>
+        </div>
+      </label>
+
+      <p class="modal-hint">Tap the companion to see it react.</p>
+    </div>
+  </div>
 }

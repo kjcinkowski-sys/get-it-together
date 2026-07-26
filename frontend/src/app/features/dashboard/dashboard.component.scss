@@ -82,6 +82,12 @@
   min-width: 0;
 }
 
+.companion-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
 .strength {
   display: flex;
   align-items: center;
@@ -255,6 +261,98 @@
   width: 100%;
   max-width: 720px;
   min-height: 48px;
+}
+
+// Enlarge modal: tap the companion to see a big version and rename it.
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: color-mix(in srgb, #000 45%, transparent);
+  backdrop-filter: blur(2px);
+  animation: modal-fade 0.15s ease;
+}
+
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.6rem 1.25rem 1.25rem;
+  animation: modal-pop 0.18s ease;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--faint);
+  font-size: 0.95rem;
+  cursor: pointer;
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.modal-close:active {
+  background: var(--bg);
+}
+
+.modal-companion {
+  display: flex;
+  justify-content: center;
+  width: 200px;
+  max-width: 70%;
+}
+
+.modal-strength {
+  width: 100%;
+  justify-content: center;
+}
+
+.modal-name-field {
+  width: 100%;
+}
+
+.modal-name-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.modal-name-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-name-row .btn {
+  flex: none;
+}
+
+.modal-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+@keyframes modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 // Scale up for tablet / desktop: show the greeting, cap the bar to content width.

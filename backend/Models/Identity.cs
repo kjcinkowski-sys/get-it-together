@@ -6,6 +6,8 @@ public class Identity
     public Guid UserId { get; set; }
     public required string Statement { get; set; }
     public CompanionType Companion { get; set; } = CompanionType.Sprite;
+    /// <summary>Optional user-given name for this identity's companion.</summary>
+    public string? CompanionName { get; set; }
     public bool IsArchived { get; set; } = false;
     public DateTime CreatedAt { get; set; }
 

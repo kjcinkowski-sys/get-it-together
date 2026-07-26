@@ -31,6 +31,7 @@ public static class DashboardEndpoints
                     i.Id,
                     i.Statement,
                     i.Companion,
+                    i.CompanionName,
                     Habits = i.Habits
                         .Where(h => !h.IsArchived)
                         .OrderBy(h => h.CreatedAt)
@@ -70,6 +71,7 @@ public static class DashboardEndpoints
                     i.Id,
                     i.Statement,
                     i.Companion,
+                    i.CompanionName,
                     strength,
                     stage,
                     StrengthCalculator.StageName(stage),
