@@ -27,11 +27,15 @@
     <a
       routerLink="/"
       routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
+      [routerLinkActiveOptions]="homeActiveOptions"
       (click)="closeMenu()"
     >
-      <span class="side-nav__icon" aria-hidden="true">🏠</span>
-      <span>Today</span>
+      <span class="side-nav__icon" aria-hidden="true">🌱</span>
+      <span>My Identity</span>
+    </a>
+    <a routerLink="/calendar" routerLinkActive="active" (click)="closeMenu()">
+      <span class="side-nav__icon" aria-hidden="true">📅</span>
+      <span>Calendar</span>
     </a>
     <a routerLink="/stats" routerLinkActive="active" (click)="closeMenu()">
       <span class="side-nav__icon" aria-hidden="true">📈</span>

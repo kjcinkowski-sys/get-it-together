@@ -1,0 +1,116 @@
+:host {
+  display: block;
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding:
+    calc(env(safe-area-inset-top) + 1rem)
+    max(env(safe-area-inset-right), 1rem)
+    calc(env(safe-area-inset-bottom) + 2rem)
+    max(env(safe-area-inset-left), 1rem);
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.cal-card {
+  padding: 1.1rem;
+}
+
+.cal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+.cal-month {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.cal-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cal-arrow:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3rem;
+}
+
+.cal-weekdays {
+  margin-bottom: 0.4rem;
+}
+
+.cal-weekday {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.cal-day {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.cal-day:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cal-day--muted {
+  color: var(--faint);
+  background: transparent;
+}
+
+.cal-day--today {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.cal-day:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

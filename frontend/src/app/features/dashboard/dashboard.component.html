@@ -1,5 +1,21 @@
 <header class="page-header">
-  <h1>Today</h1>
+  <h1>My Identity</h1>
+  <div class="date-nav">
+    <button type="button" class="date-nav__arrow" aria-label="Previous day" (click)="previousDay()">‹</button>
+    <span class="date-nav__label">{{ dateLabel() }}</span>
+    <button
+      type="button"
+      class="date-nav__arrow"
+      aria-label="Next day"
+      [disabled]="!canGoForward()"
+      (click)="nextDay()"
+    >
+      ›
+    </button>
+    @if (!isToday()) {
+      <button type="button" class="btn btn-ghost" (click)="goToToday()">Jump to today</button>
+    }
+  </div>
 </header>
 
 <main class="dashboard">
@@ -8,6 +24,12 @@
   } @else {
     @if (errorMessage()) {
       <p class="error-text">{{ errorMessage() }}</p>
+    }
+
+    @if (!isToday()) {
+      <p class="readonly-note">
+        Viewing {{ dateLabel() }} — check-ins can only be changed for today.
+      </p>
     }
 
     @if (identities().length === 0) {
@@ -67,9 +89,9 @@
                       <button
                         type="button"
                         class="status-btn"
-                        [class.active]="habit.todayStatus === status"
+                        [class.active]="habit.status === status"
                         [ngClass]="'status-' + status.toLowerCase()"
-                        [disabled]="pendingHabitId() === habit.id"
+                        [disabled]="pendingHabitId() === habit.id || !isToday()"
                         (click)="checkIn(habit.id, status)"
                       >
                         {{ status }}
