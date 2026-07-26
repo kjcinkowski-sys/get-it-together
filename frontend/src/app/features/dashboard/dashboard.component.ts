@@ -189,6 +189,15 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Stroke offset for the companion's growth ring. The ring's dasharray is 283
+   * (≈ 2πr for r = 45), so this returns how much of the circle stays unfilled.
+   */
+  ringOffset(progress: number): number {
+    const clamped = Math.max(0, Math.min(100, progress));
+    return 283 * (1 - clamped / 100);
+  }
+
   /** Short caption next to the stage name, e.g. "45% to next" or "fully grown". */
   growthCaption(identity: TodayIdentity): string {
     if (identity.stage >= 4) return 'fully grown';
