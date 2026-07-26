@@ -20,10 +20,9 @@ public static class HabitEndpoints
             var habits = await db.Habits
                 .Where(h => h.IdentityId == identityId && !h.IsArchived)
                 .OrderBy(h => h.CreatedAt)
-                .Select(h => new HabitResponse(h.Id, h.IdentityId, h.Name, h.FrequencyType, h.TargetPerWeek, h.IsArchived, h.CreatedAt))
                 .ToListAsync();
 
-            return Results.Ok(habits);
+            return Results.Ok(habits.Select(ToResponse));
         }).RequireAuthorization().WithTags("Habits");
 
         app.MapPost("/api/identities/{identityId:guid}/habits", async (Guid identityId, CreateHabitRequest request, ClaimsPrincipal claims, AppDbContext db) =>
@@ -42,16 +41,14 @@ public static class HabitEndpoints
                 Id = Guid.NewGuid(),
                 IdentityId = identityId,
                 Name = request.Name.Trim(),
-                FrequencyType = request.FrequencyType,
-                TargetPerWeek = request.TargetPerWeek,
+                ScheduledDays = ResolveScheduledDays(request.ScheduledDays),
                 CreatedAt = DateTime.UtcNow,
             };
 
             db.Habits.Add(habit);
             await db.SaveChangesAsync();
 
-            return Results.Created($"/api/habits/{habit.Id}",
-                new HabitResponse(habit.Id, habit.IdentityId, habit.Name, habit.FrequencyType, habit.TargetPerWeek, habit.IsArchived, habit.CreatedAt));
+            return Results.Created($"/api/habits/{habit.Id}", ToResponse(habit));
         }).RequireAuthorization().WithTags("Habits");
 
         app.MapPut("/api/habits/{id:guid}", async (Guid id, UpdateHabitRequest request, ClaimsPrincipal claims, AppDbContext db) =>
@@ -65,11 +62,10 @@ public static class HabitEndpoints
             if (habit is null) return Results.NotFound();
 
             habit.Name = request.Name.Trim();
-            habit.FrequencyType = request.FrequencyType;
-            habit.TargetPerWeek = request.TargetPerWeek;
+            habit.ScheduledDays = ResolveScheduledDays(request.ScheduledDays);
             await db.SaveChangesAsync();
 
-            return Results.Ok(new HabitResponse(habit.Id, habit.IdentityId, habit.Name, habit.FrequencyType, habit.TargetPerWeek, habit.IsArchived, habit.CreatedAt));
+            return Results.Ok(ToResponse(habit));
         }).RequireAuthorization().WithTags("Habits");
 
         app.MapPatch("/api/habits/{id:guid}/archive", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>
@@ -83,6 +79,29 @@ public static class HabitEndpoints
             return Results.NoContent();
         }).RequireAuthorization().WithTags("Habits");
     }
+
+    /// <summary>
+    /// Turns the requested day numbers into a bitmask. A missing or empty selection falls back
+    /// to every day, so a habit is never left scheduled on no days at all.
+    /// </summary>
+    private static int ResolveScheduledDays(IReadOnlyList<int>? days)
+    {
+        if (days is null || days.Count == 0)
+        {
+            return DayMask.AllDays;
+        }
+
+        var mask = DayMask.FromDays(days);
+        return mask == 0 ? DayMask.AllDays : mask;
+    }
+
+    private static HabitResponse ToResponse(Habit habit) => new(
+        habit.Id,
+        habit.IdentityId,
+        habit.Name,
+        DayMask.ToDays(habit.ScheduledDays),
+        habit.IsArchived,
+        habit.CreatedAt);
 
     internal static Task<Habit?> FindOwnedHabit(AppDbContext db, Guid habitId, Guid userId) =>
         db.Habits

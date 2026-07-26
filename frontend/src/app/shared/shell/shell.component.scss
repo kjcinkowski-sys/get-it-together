@@ -1,0 +1,259 @@
+// Width of the fixed rail on desktop. Exposed as a custom property so pages inside the
+// shell (e.g. the dashboard's fixed action bar) can offset themselves by the same amount.
+:host {
+  --nav-width: 0px;
+  display: block;
+}
+
+// ---------------- Mobile top bar ----------------
+.shell-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding:
+    calc(env(safe-area-inset-top) + 0.4rem)
+    max(env(safe-area-inset-right), 0.75rem)
+    0.4rem
+    max(env(safe-area-inset-left), 0.75rem);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.shell-topbar__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.shell-topbar__toggle:hover {
+  background: var(--accent-soft);
+}
+
+.hamburger,
+.hamburger::before,
+.hamburger::after {
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.hamburger {
+  position: relative;
+}
+
+.hamburger::before,
+.hamburger::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+.hamburger::before {
+  top: -6px;
+}
+
+.hamburger::after {
+  top: 6px;
+}
+
+.shell-topbar__brand {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+// LogoComponent adds a bottom margin by default; neutralise it inside the bars.
+.shell-topbar__brand ::ng-deep app-logo,
+.side-nav__brand ::ng-deep app-logo {
+  margin-bottom: 0;
+}
+
+// ---------------- Backdrop (mobile drawer) ----------------
+.shell-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0, 0, 0, 0.4);
+  animation: backdropIn 0.15s ease both;
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// ---------------- Side nav ----------------
+.side-nav {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding:
+    calc(env(safe-area-inset-top) + 1.1rem)
+    1rem
+    calc(env(safe-area-inset-bottom) + 1rem)
+    max(env(safe-area-inset-left), 1rem);
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  // Off-canvas by default (mobile); slid in when open.
+  transform: translateX(-100%);
+  transition: transform 0.22s ease;
+}
+
+.side-nav--open {
+  transform: translateX(0);
+  box-shadow: var(--shadow);
+}
+
+.side-nav__brand {
+  text-decoration: none;
+  padding: 0.25rem 0.5rem 0.75rem;
+}
+
+.side-nav__links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.side-nav__links a {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.side-nav__links a:hover {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.side-nav__links a.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.side-nav__icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.side-nav__footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+
+.side-nav__profile {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.side-nav__profile:hover {
+  background: var(--accent-soft);
+}
+
+.side-nav__profile.active {
+  background: var(--accent-soft);
+}
+
+.side-nav__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.side-nav__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.side-nav__name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side-nav__logout {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+// ---------------- Content ----------------
+.shell-main {
+  min-height: 100dvh;
+}
+
+// ---------------- Desktop: fixed rail, no top bar, no drawer ----------------
+@media (min-width: 900px) {
+  :host {
+    --nav-width: 240px;
+  }
+
+  .shell-topbar {
+    display: none;
+  }
+
+  .shell-backdrop {
+    display: none;
+  }
+
+  .side-nav {
+    // Always visible; the mobile off-canvas transform no longer applies.
+    transform: none;
+    box-shadow: none;
+  }
+
+  .shell-main {
+    margin-left: var(--nav-width);
+  }
+}

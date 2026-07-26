@@ -1,13 +1,20 @@
-<header class="app-header">
-  <div class="app-header__brand">
-    <app-logo />
-    <h1>Today</h1>
-  </div>
-  <div class="header-actions">
-    @if (authService.currentUser(); as user) {
-      <span class="user-name">{{ user.displayName }}</span>
+<header class="page-header">
+  <h1>My Identity</h1>
+  <div class="date-nav">
+    <button type="button" class="date-nav__arrow" aria-label="Previous day" (click)="previousDay()">‹</button>
+    <span class="date-nav__label">{{ dateLabel() }}</span>
+    <button
+      type="button"
+      class="date-nav__arrow"
+      aria-label="Next day"
+      [disabled]="!canGoForward()"
+      (click)="nextDay()"
+    >
+      ›
+    </button>
+    @if (!isToday()) {
+      <button type="button" class="btn btn-ghost" (click)="goToToday()">Jump to today</button>
     }
-    <button type="button" class="btn btn-ghost" (click)="logout()">Log out</button>
   </div>
 </header>
 
@@ -17,6 +24,12 @@
   } @else {
     @if (errorMessage()) {
       <p class="error-text">{{ errorMessage() }}</p>
+    }
+
+    @if (!isToday()) {
+      <p class="readonly-note">
+        Viewing {{ dateLabel() }} — check-ins can only be changed for today.
+      </p>
     }
 
     @if (identities().length === 0) {
@@ -30,7 +43,7 @@
           <div class="identity-header">
             <app-companion
               [type]="identity.companion"
-              [strength]="identity.strength"
+              [strength]="identity.stageProgress"
               [stage]="identity.stage"
               [size]="56"
               [clickable]="true"
@@ -42,15 +55,15 @@
               @if (identity.companionName) {
                 <span class="companion-name">{{ identity.companionName }}</span>
               }
-              <div class="strength" [title]="identity.strength + '% consistency strength'">
-                <span class="stage-name">{{ identity.stageName }}</span>
-                <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.strength"></span></span>
+              <div class="strength" [title]="growthTitle(identity)">
+                <span class="stage-name">{{ identity.stageName }} · {{ growthCaption(identity) }}</span>
+                <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.stageProgress"></span></span>
               </div>
             </div>
           </div>
 
           @if (identity.habits.length === 0) {
-            <p class="muted">No habits yet under this identity.</p>
+            <p class="muted">Nothing scheduled for today.</p>
           } @else {
             <ul class="habit-list">
               @for (habit of identity.habits; track habit.id) {
@@ -58,7 +71,14 @@
                   <div class="habit-top">
                     <div class="habit-info">
                       <span class="habit-name">{{ habit.name }}</span>
-                      <span class="habit-meta">{{ habit.frequencyType }} · {{ habit.targetPerWeek }}x/week</span>
+                      <span class="habit-meta">
+                        {{ scheduleLabel(habit.scheduledDays) }}
+                        @if (habit.currentStreak > 0) {
+                          <span class="streak-badge" [title]="habit.currentStreak + ' in a row'">
+                            🔥 {{ habit.currentStreak }}
+                          </span>
+                        }
+                      </span>
                     </div>
                     <button
                       type="button"
@@ -75,9 +95,9 @@
                       <button
                         type="button"
                         class="status-btn"
-                        [class.active]="habit.todayStatus === status"
+                        [class.active]="habit.status === status"
                         [ngClass]="'status-' + status.toLowerCase()"
-                        [disabled]="pendingHabitId() === habit.id"
+                        [disabled]="pendingHabitId() === habit.id || !isToday()"
                         (click)="checkIn(habit.id, status)"
                       >
                         {{ status }}
@@ -115,16 +135,16 @@
       <div class="modal-companion">
         <app-companion
           [type]="identity.companion"
-          [strength]="identity.strength"
+          [strength]="identity.stageProgress"
           [stage]="identity.stage"
           [size]="200"
           [clickable]="true"
         />
       </div>
 
-      <div class="strength modal-strength" [title]="identity.strength + '% consistency strength'">
-        <span class="stage-name">{{ identity.stageName }}</span>
-        <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.strength"></span></span>
+      <div class="strength modal-strength" [title]="growthTitle(identity)">
+        <span class="stage-name">{{ identity.stageName }} · {{ growthCaption(identity) }}</span>
+        <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.stageProgress"></span></span>
       </div>
 
       <label class="field modal-name-field">

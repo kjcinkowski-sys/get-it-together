@@ -31,9 +31,6 @@ namespace IdentityHabits.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("FrequencyType")
-                        .HasColumnType("integer");
-
                     b.Property<Guid>("IdentityId")
                         .HasColumnType("uuid");
 
@@ -44,7 +41,7 @@ namespace IdentityHabits.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TargetPerWeek")
+                    b.Property<int>("ScheduledDays")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -121,6 +118,9 @@ namespace IdentityHabits.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -135,6 +135,12 @@ namespace IdentityHabits.Api.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("TimeZone")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

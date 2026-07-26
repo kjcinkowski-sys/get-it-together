@@ -24,6 +24,32 @@ Content-Type: application/json
 GET {{IdentityHabits.Api_HostAddress}}/api/auth/me
 Authorization: Bearer {{login.response.body.token}}
 
+### Get profile
+GET {{IdentityHabits.Api_HostAddress}}/api/profile
+Authorization: Bearer {{login.response.body.token}}
+
+### Update profile (name, email, time zone, avatar)
+PUT {{IdentityHabits.Api_HostAddress}}/api/profile
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "displayName": "Tester McTest",
+  "email": "tester@example.com",
+  "timeZone": "America/New_York",
+  "avatarUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+}
+
+### Change password
+PUT {{IdentityHabits.Api_HostAddress}}/api/profile/password
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "currentPassword": "correct-horse-battery-staple",
+  "newPassword": "new-correct-horse-battery-staple"
+}
+
 ### List identities
 GET {{IdentityHabits.Api_HostAddress}}/api/identities
 Authorization: Bearer {{login.response.body.token}}
@@ -45,12 +71,15 @@ Content-Type: application/json
 
 {
   "name": "Run 20 minutes",
-  "frequencyType": "Daily",
-  "targetPerWeek": 7
+  "scheduledDays": [1, 3, 5]
 }
 
 ### Today's dashboard
 GET {{IdentityHabits.Api_HostAddress}}/api/dashboard/today
+Authorization: Bearer {{login.response.body.token}}
+
+### My stats (streaks & growth per habit)
+GET {{IdentityHabits.Api_HostAddress}}/api/stats
 Authorization: Bearer {{login.response.body.token}}
 
 ###

@@ -1,0 +1,76 @@
+<header class="page-header">
+  <h1>My stats</h1>
+</header>
+
+<main class="stats">
+  @if (loading()) {
+    <p class="muted">Loading…</p>
+  } @else {
+    @if (errorMessage()) {
+      <p class="error-text">{{ errorMessage() }}</p>
+    }
+
+    @if (identities().length === 0) {
+      <div class="empty-state card">
+        <p>No stats yet — add an identity and a habit to start tracking.</p>
+        <a routerLink="/identities/new" class="btn">Add your first identity</a>
+      </div>
+    } @else {
+      @for (identity of identities(); track identity.id) {
+        <section class="identity-card card">
+          <div class="identity-header">
+            <app-companion
+              [type]="identity.companion"
+              [strength]="identity.stageProgress"
+              [stage]="identity.stage"
+              [size]="56"
+            />
+            <div class="identity-heading">
+              <h2>{{ identity.statement }}</h2>
+              <div class="growth">
+                <span class="stage-name">{{ identity.stageName }} · {{ growthCaption(identity) }}</span>
+                <span class="growth-bar"><span class="growth-fill" [style.width.%]="identity.stageProgress"></span></span>
+                <span class="growth-note">
+                  Best streak: {{ identity.streakDays }} {{ identity.streakDays === 1 ? 'day' : 'days' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          @if (identity.habits.length === 0) {
+            <p class="muted">No habits under this identity yet.</p>
+          } @else {
+            <ul class="habit-stats">
+              @for (habit of identity.habits; track habit.id) {
+                <li class="habit-stat-row">
+                  <div class="habit-stat-head">
+                    <span class="habit-name">{{ habit.name }}</span>
+                    <span class="habit-meta">{{ scheduleLabel(habit.scheduledDays) }}</span>
+                  </div>
+                  <div class="stat-grid">
+                    <div class="stat">
+                      <span class="stat-value">🔥 {{ habit.currentStreak }}</span>
+                      <span class="stat-label">Current streak</span>
+                    </div>
+                    <div class="stat">
+                      <span class="stat-value">{{ habit.longestStreak }}</span>
+                      <span class="stat-label">Longest streak</span>
+                    </div>
+                    <div class="stat">
+                      <span class="stat-value">{{ habit.completionRate }}%</span>
+                      <span class="stat-label">Last 30 days</span>
+                    </div>
+                    <div class="stat">
+                      <span class="stat-value">{{ habit.totalCompletions }}</span>
+                      <span class="stat-label">Total done</span>
+                    </div>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    }
+  }
+</main>

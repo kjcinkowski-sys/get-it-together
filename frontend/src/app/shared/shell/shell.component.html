@@ -1,0 +1,71 @@
+<!-- Mobile top bar: brand + hamburger. Hidden on desktop, where the rail is always visible. -->
+<header class="shell-topbar">
+  <button
+    type="button"
+    class="shell-topbar__toggle"
+    [attr.aria-expanded]="menuOpen()"
+    aria-label="Toggle navigation"
+    (click)="toggleMenu()"
+  >
+    <span class="hamburger" aria-hidden="true"></span>
+  </button>
+  <a routerLink="/" class="shell-topbar__brand" (click)="closeMenu()">
+    <app-logo [showWord]="true" [size]="26" />
+  </a>
+</header>
+
+@if (menuOpen()) {
+  <div class="shell-backdrop" (click)="closeMenu()"></div>
+}
+
+<aside class="side-nav" [class.side-nav--open]="menuOpen()">
+  <a routerLink="/" class="side-nav__brand" (click)="closeMenu()">
+    <app-logo [showWord]="true" [size]="30" />
+  </a>
+
+  <nav class="side-nav__links" aria-label="Primary">
+    <a
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="homeActiveOptions"
+      (click)="closeMenu()"
+    >
+      <span class="side-nav__icon" aria-hidden="true">🌱</span>
+      <span>My Identity</span>
+    </a>
+    <a routerLink="/calendar" routerLinkActive="active" (click)="closeMenu()">
+      <span class="side-nav__icon" aria-hidden="true">📅</span>
+      <span>Calendar</span>
+    </a>
+    <a routerLink="/stats" routerLinkActive="active" (click)="closeMenu()">
+      <span class="side-nav__icon" aria-hidden="true">📈</span>
+      <span>My stats</span>
+    </a>
+  </nav>
+
+  <div class="side-nav__footer">
+    @if (authService.currentUser(); as user) {
+      <a
+        routerLink="/profile"
+        routerLinkActive="active"
+        class="side-nav__profile"
+        [title]="'Edit ' + user.displayName + '’s profile'"
+        (click)="closeMenu()"
+      >
+        <span class="side-nav__avatar" aria-hidden="true">
+          @if (user.avatarUrl) {
+            <img [src]="user.avatarUrl" alt="" />
+          } @else {
+            {{ initials(user.displayName) }}
+          }
+        </span>
+        <span class="side-nav__name">{{ user.displayName }}</span>
+      </a>
+    }
+    <button type="button" class="side-nav__logout btn btn-ghost" (click)="logout()">Log out</button>
+  </div>
+</aside>
+
+<main class="shell-main">
+  <router-outlet />
+</main>

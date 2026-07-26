@@ -1,13 +1,15 @@
 import { CompanionType } from './companion.model';
-import { FrequencyType } from './habit.model';
 import { HabitLogStatus } from './habit-log.model';
 
 export interface TodayHabit {
   id: string;
   name: string;
-  frequencyType: FrequencyType;
-  targetPerWeek: number;
-  todayStatus: HabitLogStatus | null;
+  /** Weekdays this habit is scheduled on, as day numbers (0 = Sunday … 6 = Saturday). */
+  scheduledDays: number[];
+  /** Consecutive completed scheduled occurrences up to the viewed day. */
+  currentStreak: number;
+  /** The habit's check-in status on the viewed day, if any. */
+  status: HabitLogStatus | null;
 }
 
 export interface TodayIdentity {
@@ -17,11 +19,13 @@ export interface TodayIdentity {
   companion: CompanionType;
   /** Optional user-given name for the companion. */
   companionName: string | null;
-  /** Consistency strength 0–100, derived from recent habit history. */
-  strength: number;
   /** Companion-creature growth stage 0–4. */
   stage: number;
   /** Human-readable stage name (e.g. "Sprout"). */
   stageName: string;
+  /** Progress 0–100 through the current stage toward the next. */
+  stageProgress: number;
+  /** Length in days of the identity's best current streak. */
+  streakDays: number;
   habits: TodayHabit[];
 }

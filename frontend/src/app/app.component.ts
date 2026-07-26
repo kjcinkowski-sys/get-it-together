@@ -8,6 +8,7 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { LogoComponent } from './shared/logo/logo.component';
+import { ThemeService } from './core/services/theme.service';
 
 const MIN_SPLASH_MS = 1800;
 const MIN_NAV_LOADER_MS = 700;
@@ -28,7 +29,12 @@ export class AppComponent implements OnInit {
   private navStartAt = 0;
   private navHideTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(private readonly router: Router) {
+  constructor(
+    private readonly router: Router,
+    // Injected so the theme is applied and system-preference changes are tracked
+    // app-wide, including on screens (auth, forms) that have no theme toggle.
+    private readonly theme: ThemeService,
+  ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         if (!this.booting()) {

@@ -17,10 +17,11 @@ function identityWith(status: HabitLogStatus | null): TodayIdentity[] {
       id: 'i1',
       statement: 'I am a runner',
       companion: 'Sprite',
-      strength: 50,
       stage: 1,
-      stageName: 'Sprout',
-      habits: [{ id: 'h1', name: 'Run', frequencyType: 'Daily', targetPerWeek: 5, todayStatus: status }],
+      stageName: 'Spark',
+      stageProgress: 50,
+      streakDays: 3,
+      habits: [{ id: 'h1', name: 'Run', scheduledDays: [1, 3, 5], currentStreak: 2, status: status }],
     },
   ];
 }
@@ -37,7 +38,7 @@ describe('DashboardComponent check-in', () => {
       providers: [
         provideRouter([]),
         provideHttpClient(),
-        { provide: DashboardService, useValue: { today: () => of([]) } },
+        { provide: DashboardService, useValue: { forDate: () => of([]) } },
         { provide: HabitLogService, useValue: { checkIn: checkInSpy } },
         { provide: HabitService, useValue: { archive: () => of(void 0) } },
         { provide: IdentityService, useValue: { archive: () => of(void 0) } },
@@ -60,7 +61,7 @@ describe('DashboardComponent check-in', () => {
     it(`applies "${status}" to the habit after a successful check-in`, () => {
       component.identities.set(identityWith(null));
       component.checkIn('h1', status);
-      expect(component.identities()[0].habits[0].todayStatus).toBe(status);
+      expect(component.identities()[0].habits[0].status).toBe(status);
     });
   }
 
@@ -68,7 +69,7 @@ describe('DashboardComponent check-in', () => {
     checkInSpy.and.returnValue(throwError(() => new Error('boom')));
     component.identities.set(identityWith('Completed'));
     component.checkIn('h1', 'Missed');
-    expect(component.identities()[0].habits[0].todayStatus).toBe('Completed');
+    expect(component.identities()[0].habits[0].status).toBe('Completed');
     expect(component.errorMessage()).toBeTruthy();
   });
 });
