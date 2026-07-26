@@ -41,6 +41,9 @@
       @for (identity of identities(); track identity.id) {
         <section class="identity-card card">
           <div class="crown">
+            @if (encouragements()[identity.id]; as message) {
+              <div class="cheer-bubble" role="status" aria-live="polite">{{ message }}</div>
+            }
             <div class="companion-portrait">
               <span class="growth-ring" aria-hidden="true">
                 <svg viewBox="0 0 100 100">

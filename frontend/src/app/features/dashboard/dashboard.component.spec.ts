@@ -17,6 +17,7 @@ function identityWith(status: HabitLogStatus | null): TodayIdentity[] {
       id: 'i1',
       statement: 'I am a runner',
       companion: 'Sprite',
+      companionName: null,
       stage: 1,
       stageName: 'Spark',
       stageProgress: 50,
@@ -64,6 +65,18 @@ describe('DashboardComponent check-in', () => {
       expect(component.identities()[0].habits[0].status).toBe(status);
     });
   }
+
+  it('pops an encouraging bubble for the identity when a habit is completed', () => {
+    component.identities.set(identityWith(null));
+    component.checkIn('h1', 'Completed');
+    expect(component.encouragements()['i1']).toBeTruthy();
+  });
+
+  it('does not show an encouraging bubble for a partial or missed check-in', () => {
+    component.identities.set(identityWith(null));
+    component.checkIn('h1', 'Missed');
+    expect(component.encouragements()['i1']).toBeUndefined();
+  });
 
   it('surfaces an error and leaves the status unchanged when the check-in fails', () => {
     checkInSpy.and.returnValue(throwError(() => new Error('boom')));

@@ -27,6 +27,30 @@ export class DashboardComponent implements OnInit {
   readonly companionActions = signal<Record<string, CompanionAction>>({});
   private actionNonce = 0;
 
+  /** A transient encouraging chat bubble shown by identity id when a habit is completed. */
+  readonly encouragements = signal<Record<string, string>>({});
+  private readonly encourageTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+
+  /** Pool of encouraging messages; one is picked at random on each completed check-in. */
+  private readonly encourageMessages = [
+    'That\'s who you are now. 💪',
+    'Another vote for your future self.',
+    'Look at you, showing up. ✨',
+    'One rep closer — keep going!',
+    'Proud of you for that one.',
+    'Small step, big identity.',
+    'You did the thing! 🎉',
+    'Consistency looks good on you.',
+    'That\'s the streak talking. 🔥',
+    'Future you says thanks.',
+    'Every check-in shapes who you become.',
+    'Momentum is on your side.',
+    'You showed up today — that\'s what counts.',
+    'Brick by brick, you\'re building it.',
+    'Well done. Same time tomorrow?',
+    'That\'s a win. Take it. 🙌',
+  ];
+
   /** The identity whose companion is shown enlarged, plus the in-progress rename. */
   readonly enlargedId = signal<string | null>(null);
   readonly enlarged = computed(() =>
@@ -142,6 +166,23 @@ export class DashboardComponent implements OnInit {
       ...actions,
       [owner.id]: { kind, nonce: ++this.actionNonce },
     }));
+
+    if (status === 'Completed') this.showEncouragement(owner.id);
+  }
+
+  /** Pop a random encouraging bubble over the given identity, auto-dismissing after a few seconds. */
+  private showEncouragement(identityId: string): void {
+    const message = this.encourageMessages[Math.floor(Math.random() * this.encourageMessages.length)];
+
+    this.encouragements.update((current) => ({ ...current, [identityId]: message }));
+
+    clearTimeout(this.encourageTimers[identityId]);
+    this.encourageTimers[identityId] = setTimeout(() => {
+      this.encouragements.update((current) => {
+        const { [identityId]: _removed, ...rest } = current;
+        return rest;
+      });
+    }, 3200);
   }
 
   openEnlarge(identity: TodayIdentity): void {
