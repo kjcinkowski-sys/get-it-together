@@ -1,0 +1,850 @@
+<title>Overview screen — 5 layout prototypes</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    /* Studio chrome — cool, green-biased neutral */
+    --bg: #eef1ef;
+    --bg-2: #e5e9e6;
+    --panel: #ffffff;
+    --ink: #1b241f;
+    --muted: #5b6862;
+    --faint: #8a978f;
+    --line: #d8ded9;
+    --accent: #2f6f5e;
+    --accent-soft: rgba(47, 111, 94, 0.1);
+    --serif: Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    /* Product screen tokens — always light, these are "screenshots" of the app */
+    --s-ink: #1c2521;
+    --s-muted: #5c6a63;
+    --s-faint: #8a978f;
+    --s-bg: #f3f5f4;
+    --s-surface: #ffffff;
+    --s-line: #dbe0dc;
+    --s-accent: #2f6f5e;
+    --s-accent-ink: #ffffff;
+    --s-accent-soft: rgba(47, 111, 94, 0.1);
+    --s-warn: #c17a3d;
+    --s-danger: #b3392b;
+    --s-shadow: 0 1px 2px rgba(28, 37, 33, 0.06), 0 8px 24px rgba(28, 37, 33, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10160f;
+      --bg-2: #161e18;
+      --panel: #1a221d;
+      --ink: #e7ece9;
+      --muted: #9aa8a1;
+      --faint: #71807a;
+      --line: #29332d;
+      --accent: #6cc4aa;
+      --accent-soft: rgba(108, 196, 170, 0.14);
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #10160f;
+    --bg-2: #161e18;
+    --panel: #1a221d;
+    --ink: #e7ece9;
+    --muted: #9aa8a1;
+    --faint: #71807a;
+    --line: #29332d;
+    --accent: #6cc4aa;
+    --accent-soft: rgba(108, 196, 170, 0.14);
+  }
+  :root[data-theme='light'] {
+    --bg: #eef1ef;
+    --bg-2: #e5e9e6;
+    --panel: #ffffff;
+    --ink: #1b241f;
+    --muted: #5b6862;
+    --faint: #8a978f;
+    --line: #d8ded9;
+    --accent: #2f6f5e;
+    --accent-soft: rgba(47, 111, 94, 0.1);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1200px 600px at 12% -8%, var(--bg-2), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2.5rem) 5rem;
+  }
+
+  /* ---------- Page header ---------- */
+  .masthead { max-width: 60ch; }
+  .kicker {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.9rem;
+  }
+  .masthead h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 0.9rem;
+  }
+  .masthead p {
+    font-size: 1.02rem;
+    color: var(--muted);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .goals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.4rem;
+  }
+  .goal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem 0.4rem 0.6rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .goal b {
+    display: inline-grid;
+    place-items: center;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.72rem;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--line), transparent);
+    margin: clamp(1.75rem, 4vw, 2.75rem) 0;
+    border: 0;
+  }
+
+  /* ---------- Prototype grid ---------- */
+  .plates {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    align-items: start;
+  }
+  .plate {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .plate__head { display: flex; gap: 0.9rem; align-items: baseline; }
+  .plate__num {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    flex: none;
+  }
+  .plate__title {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.25rem;
+  }
+  .plate__desc { font-size: 0.9rem; color: var(--muted); margin: 0; text-wrap: pretty; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.7rem; }
+  .tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--panel);
+  }
+  .tag--c { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); background: var(--accent-soft); }
+
+  /* ---------- Device frame ---------- */
+  .device {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    background: #0c1310;
+    border-radius: 40px;
+    padding: 10px;
+    box-shadow:
+      0 2px 4px rgba(0,0,0,0.18),
+      0 22px 50px -12px rgba(20, 40, 32, 0.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    .device { box-shadow: 0 2px 4px rgba(0,0,0,0.4), 0 22px 55px -10px rgba(0,0,0,0.6); }
+  }
+  .screen {
+    position: relative;
+    background: var(--s-bg);
+    border-radius: 31px;
+    overflow: hidden;
+    /* Screens are always-light product shots regardless of studio theme */
+    color: var(--s-ink);
+    font-size: 15px;
+  }
+  .screen__notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 42%; height: 20px;
+    background: #0c1310;
+    border-radius: 0 0 14px 14px;
+    z-index: 5;
+  }
+  .app {
+    padding: 2rem 1rem 1.1rem;
+    min-height: 560px;
+  }
+
+  /* Product-screen header (shared across mockups) */
+  .app__title { font-size: 1.35rem; font-weight: 600; color: var(--s-ink); margin: 0 0 0.55rem; }
+  .datenav { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 1.1rem; }
+  .datenav__arrow {
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    border: 1px solid var(--s-line);
+    border-radius: 8px;
+    background: var(--s-surface);
+    color: var(--s-ink);
+    font-size: 1rem;
+  }
+  .datenav__label { font-weight: 600; font-size: 0.85rem; }
+
+  /* Shared product primitives */
+  .s-card {
+    background: var(--s-surface);
+    border: 1px solid var(--s-line);
+    border-radius: 14px;
+    box-shadow: var(--s-shadow);
+  }
+  .s-eyebrow {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--s-accent);
+  }
+  .s-name { font-weight: 700; color: var(--s-ink); }
+  .statement { font-size: 1.02rem; font-weight: 600; color: var(--s-ink); line-height: 1.25; }
+
+  .bar { height: 5px; border-radius: 999px; background: var(--s-line); overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 999px; background: var(--s-accent); }
+
+  .habit-name { font-weight: 600; font-size: 0.9rem; color: var(--s-ink); }
+  .habit-meta { font-size: 0.72rem; color: var(--s-faint); display: flex; align-items: center; gap: 0.4rem; }
+  .streak {
+    padding: 1px 7px; border-radius: 999px;
+    background: var(--s-accent-soft); color: var(--s-accent);
+    font-weight: 700; font-size: 0.68rem; white-space: nowrap;
+  }
+  .status { display: flex; gap: 0.35rem; }
+  .status button {
+    flex: 1; min-height: 34px;
+    border: 1px solid var(--s-line);
+    border-radius: 8px;
+    background: var(--s-surface);
+    color: var(--s-muted);
+    font-size: 0.72rem; font-weight: 600;
+    font-family: inherit;
+  }
+  .status button.on-done { background: var(--s-accent); border-color: var(--s-accent); color: var(--s-accent-ink); }
+  .status button.on-part { background: var(--s-warn); border-color: var(--s-warn); color: #fff; }
+  .status .dot { padding: 0; }
+
+  .companion { display: block; }
+
+  /* Growth ring wrapping a companion */
+  .ring { position: relative; display: inline-grid; place-items: center; }
+  .ring svg.ring__track { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+
+  /* =========================================================
+     PROTOTYPE 1 — CROWN
+     ========================================================= */
+  .p1 .id { padding: 1.25rem 1rem 1rem; margin-bottom: 1rem; text-align: center; }
+  .p1 .crown { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+  .p1 .statement { font-size: 1.1rem; }
+  .p1 .sub { display: flex; align-items: center; gap: 0.5rem; justify-content: center; font-size: 0.72rem; color: var(--s-muted); }
+  .p1 .bar { width: 130px; margin: 0.35rem auto 0.1rem; }
+  .p1 .habits { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+  .p1 .habit {
+    background: var(--s-bg);
+    border: 1px solid var(--s-line);
+    border-radius: 11px;
+    padding: 0.7rem;
+    text-align: left;
+    display: flex; flex-direction: column; gap: 0.55rem;
+  }
+  .p1 .habit__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+
+  /* =========================================================
+     PROTOTYPE 2 — SIDEBAR
+     ========================================================= */
+  .p2 .id { display: grid; grid-template-columns: 96px 1fr; overflow: hidden; margin-bottom: 1rem; }
+  .p2 .rail {
+    background: linear-gradient(180deg, var(--s-accent-soft), transparent);
+    border-right: 1px solid var(--s-line);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    padding: 0.9rem 0.5rem;
+    text-align: center;
+  }
+  .p2 .rail .s-name { font-size: 0.78rem; }
+  .p2 .rail .stage { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--s-accent); }
+  .p2 .rail .bar { width: 100%; }
+  .p2 .body { padding: 0.85rem 0.85rem 0.9rem; min-width: 0; }
+  .p2 .statement { font-size: 0.95rem; margin-bottom: 0.7rem; }
+  .p2 .habits { display: flex; flex-direction: column; gap: 0.55rem; }
+  .p2 .habit {
+    border: 1px solid var(--s-line);
+    border-radius: 10px;
+    padding: 0.6rem 0.65rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .p2 .habit__top { display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; }
+
+  /* =========================================================
+     PROTOTYPE 3 — BANNER
+     ========================================================= */
+  .p3 .id { padding: 0; overflow: hidden; margin-bottom: 1rem; }
+  .p3 .banner {
+    display: flex; align-items: center; gap: 0.85rem;
+    padding: 1rem;
+    background: linear-gradient(120deg, var(--s-accent-soft), color-mix(in srgb, var(--s-warn) 12%, transparent));
+    border-bottom: 1px solid var(--s-line);
+  }
+  .p3 .banner .meta { min-width: 0; }
+  .p3 .statement { font-size: 1.02rem; }
+  .p3 .sub { font-size: 0.72rem; color: var(--s-muted); margin-top: 0.15rem; }
+  .p3 .bar { width: 120px; margin-top: 0.4rem; }
+  .p3 .habits { padding: 0.8rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .p3 .habit {
+    background: var(--s-surface);
+    border: 1px solid var(--s-line);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(28,37,33,0.06);
+    padding: 0.75rem;
+    display: flex; flex-direction: column; gap: 0.6rem;
+  }
+  .p3 .habit__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+
+  /* =========================================================
+     PROTOTYPE 4 — SPOTLIGHT
+     ========================================================= */
+  .p4 .id { padding: 1.1rem 1rem 1rem; margin-bottom: 1rem; }
+  .p4 .spot { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 0.9rem; }
+  .p4 .spot .meta { min-width: 0; }
+  .p4 .statement { font-size: 1.08rem; }
+  .p4 .sub { display: flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; color: var(--s-muted); margin-top: 0.3rem; }
+  .p4 .bar { width: 100%; max-width: 150px; margin-top: 0.35rem; }
+  .p4 .habits { display: flex; flex-direction: column; gap: 0.5rem; }
+  .p4 .habit {
+    position: relative;
+    background: var(--s-bg);
+    border-radius: 10px;
+    padding: 0.65rem 0.7rem 0.65rem 0.9rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+    overflow: hidden;
+  }
+  .p4 .habit::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--s-accent);
+  }
+  .p4 .habit.warn::before { background: var(--s-warn); }
+  .p4 .habit.idle::before { background: var(--s-line); }
+  .p4 .habit__top { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+
+  /* =========================================================
+     PROTOTYPE 5 — OVERLAP AVATAR
+     ========================================================= */
+  .p5 .id { padding: 0 0.9rem 0.9rem; margin: 3rem 0 1rem; overflow: visible; }
+  .p5 .avatar {
+    width: 88px; height: 88px;
+    margin: -2.6rem auto 0.2rem;
+    background: var(--s-surface);
+    border: 3px solid var(--s-surface);
+    border-radius: 50%;
+    box-shadow: var(--s-shadow);
+    display: grid; place-items: center;
+    overflow: hidden;
+  }
+  .p5 .head { text-align: center; padding-bottom: 0.6rem; border-bottom: 1px solid var(--s-line); }
+  .p5 .statement { font-size: 1.05rem; }
+  .p5 .sub { display: flex; align-items: center; gap: 0.5rem; justify-content: center; font-size: 0.72rem; color: var(--s-muted); margin-top: 0.3rem; }
+  .p5 .bar { width: 130px; margin: 0.4rem auto 0; }
+  .p5 .section-label {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--s-faint); margin: 0.85rem 0 0.5rem;
+  }
+  .p5 .habits { list-style: none; margin: 0; padding: 0; }
+  .p5 .habit {
+    display: flex; flex-direction: column; gap: 0.5rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px dashed var(--s-line);
+  }
+  .p5 .habit:last-child { border-bottom: 0; }
+  .p5 .habit__top { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+  .p5 .check {
+    width: 24px; height: 24px; flex: none;
+    border-radius: 50%;
+    border: 2px solid var(--s-accent);
+    display: grid; place-items: center;
+    color: var(--s-accent-ink);
+    font-size: 0.7rem;
+  }
+  .p5 .check.done { background: var(--s-accent); }
+  .p5 .check.empty { border-color: var(--s-line); }
+
+  /* ---------- footer note ---------- */
+  .note {
+    margin-top: 3.5rem;
+    padding: 1.5rem 1.6rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    max-width: 68ch;
+  }
+  .note h3 { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.6rem; }
+  .note p { margin: 0 0 0.6rem; color: var(--muted); font-size: 0.92rem; }
+  .note p:last-child { margin-bottom: 0; }
+  .note b { color: var(--ink); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .status button, .p5 .check { transition: none; }
+  }
+</style>
+
+<!-- Reusable companion art (always-light product palette) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="c-tree" viewBox="0 0 100 100">
+    <ellipse cx="50" cy="90" rx="20" ry="3.5" fill="#000" opacity=".08"/>
+    <rect x="45.5" y="58" width="9" height="30" rx="4" fill="#96603a"/>
+    <circle cx="34" cy="50" r="15" fill="#3f8a54"/>
+    <circle cx="66" cy="50" r="15" fill="#5cb073"/>
+    <circle cx="50" cy="44" r="21" fill="#4f9d63"/>
+    <circle cx="50" cy="32" r="14" fill="#5cb073"/>
+    <circle cx="38" cy="50" r="3" fill="#ec9aa8" opacity=".55"/>
+    <circle cx="62" cy="50" r="3" fill="#ec9aa8" opacity=".55"/>
+    <circle cx="43.5" cy="45" r="2.3" fill="#2f2a26"/>
+    <circle cx="56.5" cy="45" r="2.3" fill="#2f2a26"/>
+    <path d="M44 51 q6 6 12 0" stroke="#2f2a26" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="c-cat" viewBox="0 0 100 100">
+    <ellipse cx="50" cy="90" rx="20" ry="3.5" fill="#000" opacity=".08"/>
+    <path d="M72 72 q18 4 11 -18" stroke="#e79a5c" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <ellipse cx="50" cy="66" rx="23" ry="19" fill="#e79a5c"/>
+    <ellipse cx="50" cy="72" rx="14" ry="11" fill="#f7e3d0"/>
+    <path d="M33 30 l-4 -15 l15 7 z" fill="#e79a5c"/>
+    <path d="M67 30 l4 -15 l-15 7 z" fill="#e79a5c"/>
+    <path d="M35 27 l-1.5 -8 l8 4 z" fill="#ec9aa8"/>
+    <path d="M65 27 l1.5 -8 l-8 4 z" fill="#ec9aa8"/>
+    <circle cx="50" cy="42" r="19" fill="#e79a5c"/>
+    <path d="M30 42 h9 M30 46 h9 M70 42 h-9 M70 46 h-9" stroke="#c26a2c" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="43" cy="41" r="2.6" fill="#2f2a26"/>
+    <circle cx="57" cy="41" r="2.6" fill="#2f2a26"/>
+    <path d="M50 46 l-2.2 2.4 h4.4 z" fill="#ec9aa8"/>
+    <path d="M46 50 q4 3 8 0" stroke="#2f2a26" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="c-fly" viewBox="0 0 100 100">
+    <ellipse cx="50" cy="91" rx="15" ry="2.6" fill="#000" opacity=".08"/>
+    <ellipse cx="33" cy="42" rx="17" ry="21" fill="#ec8a3c"/>
+    <ellipse cx="67" cy="42" rx="17" ry="21" fill="#ec8a3c"/>
+    <ellipse cx="36" cy="67" rx="12" ry="14" fill="#e7b04c"/>
+    <ellipse cx="64" cy="67" rx="12" ry="14" fill="#e7b04c"/>
+    <circle cx="32" cy="40" r="5" fill="#fff" opacity=".55"/>
+    <circle cx="68" cy="40" r="5" fill="#fff" opacity=".55"/>
+    <circle cx="36" cy="66" r="3.4" fill="#fff" opacity=".5"/>
+    <circle cx="64" cy="66" r="3.4" fill="#fff" opacity=".5"/>
+    <rect x="47" y="33" width="6" height="42" rx="3" fill="#2f2a26"/>
+    <circle cx="50" cy="31" r="5" fill="#2f2a26"/>
+    <path d="M48 27 q-6 -8 -11 -9 M52 27 q6 -8 11 -9" stroke="#2f2a26" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <circle cx="48" cy="30" r="1.5" fill="#fff"/>
+    <circle cx="52" cy="30" r="1.5" fill="#fff"/>
+  </symbol>
+</svg>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="kicker">Overview screen · Design exploration</p>
+    <h1>Five ways to lay out identities &amp; their companions</h1>
+    <p>The current card treats the companion as a small avatar beside the identity name, and the habits run together as a plain divided list. These five prototypes each push the companion to the foreground and give every habit a clearer edge of its own.</p>
+    <div class="goals">
+      <span class="goal"><b>1</b> Companion more prominent</span>
+      <span class="goal"><b>2</b> Clearer division between habits</span>
+    </div>
+  </header>
+
+  <hr class="divider" />
+
+  <div class="plates">
+
+    <!-- ============ PROTOTYPE 1 — CROWN ============ -->
+    <article class="plate p1">
+      <div class="plate__head">
+        <span class="plate__num">01</span>
+        <div>
+          <h2 class="plate__title">Crown</h2>
+          <p class="plate__desc">The companion is centered and enlarged at the top of each card, wearing its growth ring like a portrait. Habits sit below as inset tiles.</p>
+          <div class="tags">
+            <span class="tag tag--c">Companion: centered portrait, 84px</span>
+            <span class="tag">Habits: filled inset tiles</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="device">
+        <div class="screen">
+          <div class="screen__notch"></div>
+          <div class="app">
+            <h1 class="app__title">My Identity</h1>
+            <div class="datenav">
+              <span class="datenav__arrow">‹</span>
+              <span class="datenav__label">Today</span>
+              <span class="datenav__arrow">›</span>
+            </div>
+
+            <section class="s-card id">
+              <div class="crown">
+                <div class="ring">
+                  <svg class="ring__track" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="46" fill="none" stroke="var(--s-line)" stroke-width="5"/>
+                    <circle cx="50" cy="50" r="46" fill="none" stroke="var(--s-accent)" stroke-width="5" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="130"/>
+                  </svg>
+                  <svg class="companion" width="84" height="84" style="padding:9px"><use href="#c-tree"/></svg>
+                </div>
+                <div class="s-name">Rowan</div>
+                <div class="statement">I am a runner</div>
+                <div class="sub"><span class="s-eyebrow">Sapling</span> · 55% to next</div>
+                <div class="bar"><i style="width:55%"></i></div>
+              </div>
+
+              <div class="habits">
+                <div class="habit">
+                  <div class="habit__top">
+                    <span class="habit-name">Morning run</span>
+                    <span class="streak">🔥 12</span>
+                  </div>
+                  <div class="status"><button class="on-done">Completed</button><button>Partial</button><button>Missed</button></div>
+                </div>
+                <div class="habit">
+                  <div class="habit__top">
+                    <span class="habit-name">Stretch 10 min</span>
+                    <span class="habit-meta">Mon · Wed · Fri</span>
+                  </div>
+                  <div class="status"><button>Completed</button><button class="on-part">Partial</button><button>Missed</button></div>
+                </div>
+                <div class="habit">
+                  <div class="habit__top">
+                    <span class="habit-name">Log my miles</span>
+                    <span class="habit-meta">Daily</span>
+                  </div>
+                  <div class="status"><button>Completed</button><button>Partial</button><button>Missed</button></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ PROTOTYPE 2 — SIDEBAR ============ -->
+    <article class="plate p2">
+      <div class="plate__head">
+        <span class="plate__num">02</span>
+        <div>
+          <h2 class="plate__title">Sidebar</h2>
+          <p class="plate__desc">A tinted companion rail runs the full height of the card, so the creature is always in view. Habits become bordered chips stacked in the main column.</p>
+          <div class="tags">
+            <span class="tag tag--c">Companion: full-height tinted rail</span>
+            <span class="tag">Habits: bordered chips</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="device">
+        <div class="screen">
+          <div class="screen__notch"></div>
+          <div class="app">
+            <h1 class="app__title">My Identity</h1>
+            <div class="datenav">
+              <span class="datenav__arrow">‹</span>
+              <span class="datenav__label">Today</span>
+              <span class="datenav__arrow">›</span>
+            </div>
+
+            <section class="s-card id">
+              <div class="rail">
+                <svg class="companion" width="72" height="72"><use href="#c-tree"/></svg>
+                <div class="s-name">Rowan</div>
+                <div class="stage">Sapling</div>
+                <div class="bar"><i style="width:55%"></i></div>
+              </div>
+              <div class="body">
+                <div class="statement">I am a runner</div>
+                <div class="habits">
+                  <div class="habit">
+                    <div class="habit__top">
+                      <span class="habit-name">Morning run</span>
+                      <span class="streak">🔥 12</span>
+                    </div>
+                    <div class="status"><button class="on-done">Done</button><button>Part</button><button>Miss</button></div>
+                  </div>
+                  <div class="habit">
+                    <div class="habit__top">
+                      <span class="habit-name">Stretch 10 min</span>
+                      <span class="habit-meta">M·W·F</span>
+                    </div>
+                    <div class="status"><button>Done</button><button class="on-part">Part</button><button>Miss</button></div>
+                  </div>
+                  <div class="habit">
+                    <div class="habit__top">
+                      <span class="habit-name">Log my miles</span>
+                      <span class="habit-meta">Daily</span>
+                    </div>
+                    <div class="status"><button>Done</button><button>Part</button><button>Miss</button></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="s-card id">
+              <div class="rail">
+                <svg class="companion" width="72" height="72"><use href="#c-cat"/></svg>
+                <div class="s-name">Miso</div>
+                <div class="stage">Kitten</div>
+                <div class="bar"><i style="width:30%"></i></div>
+              </div>
+              <div class="body">
+                <div class="statement">I am a calm person</div>
+                <div class="habits">
+                  <div class="habit">
+                    <div class="habit__top">
+                      <span class="habit-name">Meditate</span>
+                      <span class="streak">🔥 5</span>
+                    </div>
+                    <div class="status"><button class="on-done">Done</button><button>Part</button><button>Miss</button></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ PROTOTYPE 3 — BANNER ============ -->
+    <article class="plate p3">
+      <div class="plate__head">
+        <span class="plate__num">03</span>
+        <div>
+          <h2 class="plate__title">Banner</h2>
+          <p class="plate__desc">A soft gradient hero band carries the companion and identity across the top. Each habit drops into its own elevated sub-card, floating clear of its neighbors.</p>
+          <div class="tags">
+            <span class="tag tag--c">Companion: gradient hero band</span>
+            <span class="tag">Habits: elevated sub-cards</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="device">
+        <div class="screen">
+          <div class="screen__notch"></div>
+          <div class="app">
+            <h1 class="app__title">My Identity</h1>
+            <div class="datenav">
+              <span class="datenav__arrow">‹</span>
+              <span class="datenav__label">Today</span>
+              <span class="datenav__arrow">›</span>
+            </div>
+
+            <section class="s-card id">
+              <div class="banner">
+                <svg class="companion" width="76" height="76"><use href="#c-tree"/></svg>
+                <div class="meta">
+                  <div class="statement">I am a runner</div>
+                  <div class="sub"><b class="s-name">Rowan</b> · Sapling</div>
+                  <div class="bar"><i style="width:55%"></i></div>
+                </div>
+              </div>
+              <div class="habits">
+                <div class="habit">
+                  <div class="habit__top">
+                    <span class="habit-name">Morning run</span>
+                    <span class="streak">🔥 12</span>
+                  </div>
+                  <div class="status"><button class="on-done">Completed</button><button>Partial</button><button>Missed</button></div>
+                </div>
+                <div class="habit">
+                  <div class="habit__top">
+                    <span class="habit-name">Stretch 10 min</span>
+                    <span class="habit-meta">Mon · Wed · Fri</span>
+                  </div>
+                  <div class="status"><button>Completed</button><button class="on-part">Partial</button><button>Missed</button></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ PROTOTYPE 4 — SPOTLIGHT ============ -->
+    <article class="plate p4">
+      <div class="plate__head">
+        <span class="plate__num">04</span>
+        <div>
+          <h2 class="plate__title">Spotlight</h2>
+          <p class="plate__desc">A large companion anchors the left of the header. Habits use a colored status stripe on the leading edge — a glance down the stripes reads the day's progress.</p>
+          <div class="tags">
+            <span class="tag tag--c">Companion: 80px header anchor</span>
+            <span class="tag">Habits: color status stripe</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="device">
+        <div class="screen">
+          <div class="screen__notch"></div>
+          <div class="app">
+            <h1 class="app__title">My Identity</h1>
+            <div class="datenav">
+              <span class="datenav__arrow">‹</span>
+              <span class="datenav__label">Today</span>
+              <span class="datenav__arrow">›</span>
+            </div>
+
+            <section class="s-card id">
+              <div class="spot">
+                <svg class="companion" width="80" height="80"><use href="#c-fly"/></svg>
+                <div class="meta">
+                  <div class="statement">I am creative</div>
+                  <div class="sub"><b class="s-name">Pip</b> · <span class="s-eyebrow">Fledgling</span></div>
+                  <div class="bar"><i style="width:70%"></i></div>
+                </div>
+              </div>
+              <div class="habits">
+                <div class="habit">
+                  <div class="habit__top">
+                    <span class="habit-name">Sketch a page</span>
+                    <span class="streak">🔥 8</span>
+                  </div>
+                  <div class="status"><button class="on-done">Completed</button><button>Partial</button><button>Missed</button></div>
+                </div>
+                <div class="habit warn">
+                  <div class="habit__top">
+                    <span class="habit-name">Write 200 words</span>
+                    <span class="habit-meta">Daily</span>
+                  </div>
+                  <div class="status"><button>Completed</button><button class="on-part">Partial</button><button>Missed</button></div>
+                </div>
+                <div class="habit idle">
+                  <div class="habit__top">
+                    <span class="habit-name">Read 15 min</span>
+                    <span class="habit-meta">Mon · Wed · Fri</span>
+                  </div>
+                  <div class="status"><button>Completed</button><button>Partial</button><button>Missed</button></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ PROTOTYPE 5 — OVERLAP AVATAR ============ -->
+    <article class="plate p5">
+      <div class="plate__head">
+        <span class="plate__num">05</span>
+        <div>
+          <h2 class="plate__title">Overlap avatar</h2>
+          <p class="plate__desc">The companion sits in a rounded badge that breaks out over the top edge of the card, portrait-style. Habits form a labeled list with a tap-to-complete circle each.</p>
+          <div class="tags">
+            <span class="tag tag--c">Companion: overhanging badge</span>
+            <span class="tag">Habits: labeled ruled list</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="device">
+        <div class="screen">
+          <div class="screen__notch"></div>
+          <div class="app">
+            <h1 class="app__title">My Identity</h1>
+            <div class="datenav">
+              <span class="datenav__arrow">‹</span>
+              <span class="datenav__label">Today</span>
+              <span class="datenav__arrow">›</span>
+            </div>
+
+            <section class="s-card id">
+              <div class="avatar">
+                <svg class="companion" width="76" height="76"><use href="#c-cat"/></svg>
+              </div>
+              <div class="head">
+                <div class="statement">I am a calm person</div>
+                <div class="sub"><b class="s-name">Miso</b> · <span class="s-eyebrow">Kitten</span></div>
+                <div class="bar"><i style="width:30%"></i></div>
+              </div>
+
+              <div class="section-label">Today’s habits · 2</div>
+              <ul class="habits">
+                <li class="habit">
+                  <div class="habit__top">
+                    <div>
+                      <div class="habit-name">Meditate</div>
+                      <div class="habit-meta">Daily <span class="streak">🔥 5</span></div>
+                    </div>
+                    <span class="check done">✓</span>
+                  </div>
+                  <div class="status"><button class="on-done">Completed</button><button>Partial</button><button>Missed</button></div>
+                </li>
+                <li class="habit">
+                  <div class="habit__top">
+                    <div>
+                      <div class="habit-name">Journal before bed</div>
+                      <div class="habit-meta">Daily</div>
+                    </div>
+                    <span class="check empty"></span>
+                  </div>
+                  <div class="status"><button>Completed</button><button>Partial</button><button>Missed</button></div>
+                </li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <aside class="note">
+    <h3>How to read these</h3>
+    <p>Every mockup uses the app's real tokens, companions, and check-in controls — only the arrangement changes, so any one could drop into the existing dashboard. Screens are shown in the product's light theme regardless of this page's theme.</p>
+    <p>The two levers vary independently. <b>Companion prominence</b> ranges from a centered portrait (01, 05) through a persistent rail (02) to a header anchor (03, 04). <b>Habit division</b> ranges from filled tiles (01) and elevated sub-cards (03) to a status stripe (04) and a labeled ruled list (05). Approaches can be mixed — e.g. Crown's portrait with Spotlight's status stripes.</p>
+    <p>If you want, point me at one (or a hybrid) and I'll wire it into <b>dashboard.component</b> for real.</p>
+  </aside>
+</div>
