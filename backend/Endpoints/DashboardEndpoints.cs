@@ -38,6 +38,7 @@ public static class DashboardEndpoints
                     i.Id,
                     i.Statement,
                     i.Companion,
+                    i.CompanionName,
                     Habits = i.Habits
                         .Where(h => !h.IsArchived)
                         .OrderBy(h => h.CreatedAt)
@@ -83,6 +84,7 @@ public static class DashboardEndpoints
                     i.Id,
                     i.Statement,
                     i.Companion,
+                    i.CompanionName,
                     growth.Stage,
                     growth.StageName,
                     growth.StageProgress,

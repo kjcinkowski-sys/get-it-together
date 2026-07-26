@@ -15,12 +15,17 @@ export class IdentityService {
     return this.http.get<Identity[]>(this.baseUrl);
   }
 
-  create(statement: string, companion: CompanionType): Observable<Identity> {
-    return this.http.post<Identity>(this.baseUrl, { statement, companion });
+  create(statement: string, companion: CompanionType, companionName?: string | null): Observable<Identity> {
+    return this.http.post<Identity>(this.baseUrl, { statement, companion, companionName });
   }
 
-  update(id: string, statement: string, companion?: CompanionType): Observable<Identity> {
-    return this.http.put<Identity>(`${this.baseUrl}/${id}`, { statement, companion });
+  update(
+    id: string,
+    statement: string,
+    companion?: CompanionType,
+    companionName?: string | null,
+  ): Observable<Identity> {
+    return this.http.put<Identity>(`${this.baseUrl}/${id}`, { statement, companion, companionName });
   }
 
   archive(id: string): Observable<void> {

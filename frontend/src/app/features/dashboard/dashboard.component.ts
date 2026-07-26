@@ -1,7 +1,8 @@
 import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CompanionComponent } from '../../shared/companion/companion.component';
+import { CompanionAction, CompanionComponent } from '../../shared/companion/companion.component';
 import { TodayIdentity } from '../../core/models/dashboard.model';
 import { HabitLogStatus } from '../../core/models/habit-log.model';
 import { DashboardService } from '../../core/services/dashboard.service';
@@ -12,7 +13,7 @@ import { addDays, isIsoDate, todayIso } from '../../core/util/date.util';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NgClass, RouterLink, CompanionComponent],
+  imports: [NgClass, FormsModule, RouterLink, CompanionComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -21,6 +22,18 @@ export class DashboardComponent implements OnInit {
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
   readonly pendingHabitId = signal<string | null>(null);
+
+  /** One-shot companion animations keyed by identity id, triggered on check-in. */
+  readonly companionActions = signal<Record<string, CompanionAction>>({});
+  private actionNonce = 0;
+
+  /** The identity whose companion is shown enlarged, plus the in-progress rename. */
+  readonly enlargedId = signal<string | null>(null);
+  readonly enlarged = computed(() =>
+    this.identities().find((i) => i.id === this.enlargedId()) ?? null,
+  );
+  readonly nameDraft = signal('');
+  readonly savingName = signal(false);
 
   readonly today = todayIso();
   /** The day currently on screen, driven by the `date` query param (defaults to today). */
@@ -106,11 +119,58 @@ export class DashboardComponent implements OnInit {
             ),
           })),
         );
+        this.reactToCheckIn(habitId, status);
         this.pendingHabitId.set(null);
       },
       error: () => {
         this.pendingHabitId.set(null);
         this.errorMessage.set('Could not save that check-in. Please try again.');
+      },
+    });
+  }
+
+  /** Cheer when a habit is completed, frown when it's missed. */
+  private reactToCheckIn(habitId: string, status: HabitLogStatus): void {
+    const kind: CompanionAction['kind'] | null =
+      status === 'Completed' ? 'cheer' : status === 'Missed' ? 'frown' : null;
+    if (!kind) return;
+
+    const owner = this.identities().find((i) => i.habits.some((h) => h.id === habitId));
+    if (!owner) return;
+
+    this.companionActions.update((actions) => ({
+      ...actions,
+      [owner.id]: { kind, nonce: ++this.actionNonce },
+    }));
+  }
+
+  openEnlarge(identity: TodayIdentity): void {
+    this.nameDraft.set(identity.companionName ?? '');
+    this.enlargedId.set(identity.id);
+  }
+
+  closeEnlarge(): void {
+    this.enlargedId.set(null);
+  }
+
+  saveName(): void {
+    const identity = this.enlarged();
+    if (!identity || this.savingName()) return;
+
+    const trimmed = this.nameDraft().trim();
+    const newName = trimmed || null;
+    this.savingName.set(true);
+
+    this.identityService.update(identity.id, identity.statement, identity.companion, newName).subscribe({
+      next: () => {
+        this.identities.update((identities) =>
+          identities.map((i) => (i.id === identity.id ? { ...i, companionName: newName } : i)),
+        );
+        this.savingName.set(false);
+      },
+      error: () => {
+        this.savingName.set(false);
+        this.errorMessage.set('Could not save that name. Please try again.');
       },
     });
   }

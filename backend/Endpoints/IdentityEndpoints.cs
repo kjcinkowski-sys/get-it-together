@@ -19,7 +19,7 @@ public static class IdentityEndpoints
             var identities = await db.Identities
                 .Where(i => i.UserId == userId && !i.IsArchived)
                 .OrderBy(i => i.CreatedAt)
-                .Select(i => new IdentityResponse(i.Id, i.Statement, i.Companion, i.IsArchived, i.CreatedAt))
+                .Select(i => new IdentityResponse(i.Id, i.Statement, i.Companion, i.CompanionName, i.IsArchived, i.CreatedAt))
                 .ToListAsync();
 
             return Results.Ok(identities);
@@ -38,6 +38,7 @@ public static class IdentityEndpoints
                 UserId = claims.GetUserId(),
                 Statement = request.Statement.Trim(),
                 Companion = request.Companion ?? CompanionType.Sprite,
+                CompanionName = NormalizeName(request.CompanionName),
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -45,7 +46,7 @@ public static class IdentityEndpoints
             await db.SaveChangesAsync();
 
             return Results.Created($"/api/identities/{identity.Id}",
-                new IdentityResponse(identity.Id, identity.Statement, identity.Companion, identity.IsArchived, identity.CreatedAt));
+                new IdentityResponse(identity.Id, identity.Statement, identity.Companion, identity.CompanionName, identity.IsArchived, identity.CreatedAt));
         });
 
         group.MapGet("/{id:guid}", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>
@@ -53,7 +54,7 @@ public static class IdentityEndpoints
             var identity = await FindOwnedIdentity(db, id, claims.GetUserId());
             return identity is null
                 ? Results.NotFound()
-                : Results.Ok(new IdentityResponse(identity.Id, identity.Statement, identity.Companion, identity.IsArchived, identity.CreatedAt));
+                : Results.Ok(new IdentityResponse(identity.Id, identity.Statement, identity.Companion, identity.CompanionName, identity.IsArchived, identity.CreatedAt));
         });
 
         group.MapPut("/{id:guid}", async (Guid id, UpdateIdentityRequest request, ClaimsPrincipal claims, AppDbContext db) =>
@@ -71,9 +72,10 @@ public static class IdentityEndpoints
             {
                 identity.Companion = request.Companion.Value;
             }
+            identity.CompanionName = NormalizeName(request.CompanionName);
             await db.SaveChangesAsync();
 
-            return Results.Ok(new IdentityResponse(identity.Id, identity.Statement, identity.Companion, identity.IsArchived, identity.CreatedAt));
+            return Results.Ok(new IdentityResponse(identity.Id, identity.Statement, identity.Companion, identity.CompanionName, identity.IsArchived, identity.CreatedAt));
         });
 
         group.MapPatch("/{id:guid}/archive", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>
@@ -90,4 +92,11 @@ public static class IdentityEndpoints
 
     private static Task<Identity?> FindOwnedIdentity(AppDbContext db, Guid id, Guid userId) =>
         db.Identities.SingleOrDefaultAsync(i => i.Id == id && i.UserId == userId);
+
+    /// <summary>Trims a companion name, collapsing blank input to null.</summary>
+    private static string? NormalizeName(string? name)
+    {
+        var trimmed = name?.Trim();
+        return string.IsNullOrEmpty(trimmed) ? null : trimmed;
+    }
 }

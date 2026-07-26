@@ -13,6 +13,7 @@ public record TodayIdentityResponse(
     Guid Id,
     string Statement,
     CompanionType Companion,
+    string? CompanionName,
     int Stage,
     string StageName,
     int StageProgress,

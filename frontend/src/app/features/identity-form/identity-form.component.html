@@ -28,6 +28,11 @@
         </div>
       </div>
 
+      <label class="field">
+        <span>Companion name <span class="optional">(optional)</span></span>
+        <input type="text" formControlName="companionName" placeholder="Give your companion a name" maxlength="40" />
+      </label>
+
       @if (errorMessage()) {
         <p class="error-text">{{ errorMessage() }}</p>
       }

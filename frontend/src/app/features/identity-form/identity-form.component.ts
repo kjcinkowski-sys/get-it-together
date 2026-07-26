@@ -23,6 +23,7 @@ export class IdentityFormComponent {
   readonly form = this.fb.nonNullable.group({
     statement: ['', Validators.required],
     companion: ['Tree' as CompanionType, Validators.required],
+    companionName: [''],
   });
 
   readonly submitting = signal(false);
@@ -38,8 +39,8 @@ export class IdentityFormComponent {
     this.submitting.set(true);
     this.errorMessage.set(null);
 
-    const { statement, companion } = this.form.getRawValue();
-    this.identityService.create(statement, companion).subscribe({
+    const { statement, companion, companionName } = this.form.getRawValue();
+    this.identityService.create(statement, companion, companionName.trim() || null).subscribe({
       next: () => this.router.navigate(['/']),
       error: () => {
         this.submitting.set(false);
