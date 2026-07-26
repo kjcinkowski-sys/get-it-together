@@ -26,7 +26,7 @@ export class DashboardComponent implements OnInit {
   /** The day currently on screen, driven by the `date` query param (defaults to today). */
   readonly selectedDate = signal(this.today);
   readonly isToday = computed(() => this.selectedDate() === this.today);
-  readonly canGoForward = computed(() => this.selectedDate() < this.today);
+  readonly isFuture = computed(() => this.selectedDate() > this.today);
   readonly dateLabel = computed(() => this.labelFor(this.selectedDate()));
 
   readonly statuses: HabitLogStatus[] = ['Completed', 'Partial', 'Missed'];
@@ -44,7 +44,7 @@ export class DashboardComponent implements OnInit {
     // The URL owns the viewed day, so arrows, the calendar, and the back button all agree.
     this.route.queryParamMap.subscribe((params) => {
       const raw = params.get('date');
-      const date = isIsoDate(raw) && raw <= this.today ? raw : this.today;
+      const date = isIsoDate(raw) ? raw : this.today;
       this.selectedDate.set(date);
       this.load();
     });
@@ -71,9 +71,7 @@ export class DashboardComponent implements OnInit {
   }
 
   nextDay(): void {
-    if (this.canGoForward()) {
-      this.goToDate(addDays(this.selectedDate(), 1));
-    }
+    this.goToDate(addDays(this.selectedDate(), 1));
   }
 
   goToToday(): void {
@@ -81,11 +79,10 @@ export class DashboardComponent implements OnInit {
   }
 
   private goToDate(date: string): void {
-    const target = date > this.today ? this.today : date;
     this.router.navigate([], {
       relativeTo: this.route,
       // Keep the URL clean on the default (today) view.
-      queryParams: { date: target === this.today ? null : target },
+      queryParams: { date: date === this.today ? null : date },
       queryParamsHandling: 'merge',
     });
   }
@@ -154,10 +151,11 @@ export class DashboardComponent implements OnInit {
       .join(' · ');
   }
 
-  /** "Today" / "Yesterday" / "Mon, Jul 21" for the date navigator. */
+  /** "Today" / "Yesterday" / "Tomorrow" / "Mon, Jul 21" for the date navigator. */
   private labelFor(date: string): string {
     if (date === this.today) return 'Today';
     if (date === addDays(this.today, -1)) return 'Yesterday';
+    if (date === addDays(this.today, 1)) return 'Tomorrow';
     const [year, month, day] = date.split('-').map(Number);
     return new Date(year, month - 1, day).toLocaleDateString(undefined, {
       weekday: 'short',

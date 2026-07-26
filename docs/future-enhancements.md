@@ -11,10 +11,10 @@ Roughly ordered by suggested sequencing (see the bottom of the file for the rati
 >   (`frontend/src/app/shared/shell/`) that all authenticated pages route through, so pages
 >   no longer carry duplicated headers.
 > - **Multi-day view + calendar** — the dashboard (now "My Identity") takes a `?date=` query
->   param with prev/next arrows, and a Calendar page in the sidebar jumps to any past day.
->   Streaks and companion growth are computed as-of the viewed day. Check-ins remain
->   editable only for today; past days are review-only. (Backend `/api/dashboard/today`
->   accepts an optional `date`.)
+>   param with prev/next arrows, and a Calendar page in the sidebar jumps to any day (past or
+>   future). Streaks and companion growth are computed as-of the viewed day, capped at today
+>   for future previews. Only today is editable: past days show grayed-out buttons, future
+>   days show none. (Backend `/api/dashboard/today` accepts an optional `date`.)
 
 ---
 

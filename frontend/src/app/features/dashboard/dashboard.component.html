@@ -3,15 +3,7 @@
   <div class="date-nav">
     <button type="button" class="date-nav__arrow" aria-label="Previous day" (click)="previousDay()">‹</button>
     <span class="date-nav__label">{{ dateLabel() }}</span>
-    <button
-      type="button"
-      class="date-nav__arrow"
-      aria-label="Next day"
-      [disabled]="!canGoForward()"
-      (click)="nextDay()"
-    >
-      ›
-    </button>
+    <button type="button" class="date-nav__arrow" aria-label="Next day" (click)="nextDay()">›</button>
     @if (!isToday()) {
       <button type="button" class="btn btn-ghost" (click)="goToToday()">Jump to today</button>
     }
@@ -24,12 +16,6 @@
   } @else {
     @if (errorMessage()) {
       <p class="error-text">{{ errorMessage() }}</p>
-    }
-
-    @if (!isToday()) {
-      <p class="readonly-note">
-        Viewing {{ dateLabel() }} — check-ins can only be changed for today.
-      </p>
     }
 
     @if (identities().length === 0) {
@@ -84,20 +70,22 @@
                     </button>
                   </div>
 
-                  <div class="status-buttons">
-                    @for (status of statuses; track status) {
-                      <button
-                        type="button"
-                        class="status-btn"
-                        [class.active]="habit.status === status"
-                        [ngClass]="'status-' + status.toLowerCase()"
-                        [disabled]="pendingHabitId() === habit.id || !isToday()"
-                        (click)="checkIn(habit.id, status)"
-                      >
-                        {{ status }}
-                      </button>
-                    }
-                  </div>
+                  @if (!isFuture()) {
+                    <div class="status-buttons">
+                      @for (status of statuses; track status) {
+                        <button
+                          type="button"
+                          class="status-btn"
+                          [class.active]="habit.status === status"
+                          [ngClass]="'status-' + status.toLowerCase()"
+                          [disabled]="pendingHabitId() === habit.id || !isToday()"
+                          (click)="checkIn(habit.id, status)"
+                        >
+                          {{ status }}
+                        </button>
+                      }
+                    </div>
+                  }
                 </li>
               }
             </ul>

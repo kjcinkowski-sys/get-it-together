@@ -23,10 +23,14 @@ public static class DashboardEndpoints
             var userId = claims.GetUserId();
             var todayUtc = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            // The day being viewed. Defaults to today; a past date lets the user review that
-            // day. Future dates are clamped to today — there is nothing to show ahead of now.
-            var reference = date is { } d && d < todayUtc ? d : todayUtc;
-            var windowStart = reference.AddDays(-(HistoryWindowDays - 1));
+            // The day being viewed. Defaults to today; past days are reviewable and future
+            // days are a preview of what's scheduled.
+            var reference = date ?? todayUtc;
+
+            // Streaks and growth reflect real progress, so a future preview shows the
+            // companion as it stands today rather than a hypothetical grown/broken state.
+            var growthReference = reference < todayUtc ? reference : todayUtc;
+            var windowStart = growthReference.AddDays(-(HistoryWindowDays - 1));
 
             // Pull each identity with its active habits and the completed logs inside the
             // history window, then compute the viewed day's status, streaks and growth in memory.
@@ -77,7 +81,7 @@ public static class DashboardEndpoints
 
                 var growth = GrowthCalculator.Compute(
                     habits.Select(h => new GrowthCalculator.HabitActivity(h.ScheduledDays, h.CreatedOn, h.CompletedSet)).ToList(),
-                    reference);
+                    growthReference);
 
                 return new TodayIdentityResponse(
                     i.Id,
@@ -97,7 +101,7 @@ public static class DashboardEndpoints
                             h.Id,
                             h.Name,
                             DayMask.ToDays(h.ScheduledDays),
-                            StreakCalculator.CurrentStreak(h.ScheduledDays, h.CreatedOn, h.CompletedSet, reference),
+                            StreakCalculator.CurrentStreak(h.ScheduledDays, h.CreatedOn, h.CompletedSet, growthReference),
                             h.Status))
                         .ToList());
             }).ToList();

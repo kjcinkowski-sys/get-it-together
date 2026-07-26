@@ -7,7 +7,6 @@ interface CalendarCell {
   day: number;
   inMonth: boolean;
   isToday: boolean;
-  isFuture: boolean;
 }
 
 @Component({
@@ -42,7 +41,6 @@ export class CalendarComponent {
   }
 
   selectDay(cell: CalendarCell): void {
-    if (cell.isFuture) return;
     // Drive the "My Identity" view via its date query param; today keeps the URL clean.
     this.router.navigate(['/'], {
       queryParams: { date: cell.iso === this.today ? null : cell.iso },
@@ -66,7 +64,6 @@ export class CalendarComponent {
           day: date.getDate(),
           inMonth: date.getMonth() === month,
           isToday: iso === this.today,
-          isFuture: iso > this.today,
         });
       }
       weeks.push(row);

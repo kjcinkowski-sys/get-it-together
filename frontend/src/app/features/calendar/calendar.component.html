@@ -25,7 +25,6 @@
             class="cal-day"
             [class.cal-day--muted]="!cell.inMonth"
             [class.cal-day--today]="cell.isToday"
-            [disabled]="cell.isFuture"
             [attr.aria-label]="cell.iso"
             (click)="selectDay(cell)"
           >
