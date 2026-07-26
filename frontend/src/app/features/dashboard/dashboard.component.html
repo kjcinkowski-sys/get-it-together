@@ -40,25 +40,37 @@
     } @else {
       @for (identity of identities(); track identity.id) {
         <section class="identity-card card">
-          <div class="identity-header">
-            <app-companion
-              [type]="identity.companion"
-              [strength]="identity.stageProgress"
-              [stage]="identity.stage"
-              [size]="56"
-              [clickable]="true"
-              [action]="companionActions()[identity.id]"
-              (enlarge)="openEnlarge(identity)"
-            />
-            <div class="identity-heading">
-              <h2>{{ identity.statement }}</h2>
-              @if (identity.companionName) {
-                <span class="companion-name">{{ identity.companionName }}</span>
-              }
-              <div class="strength" [title]="growthTitle(identity)">
-                <span class="stage-name">{{ identity.stageName }} · {{ growthCaption(identity) }}</span>
-                <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.stageProgress"></span></span>
-              </div>
+          <div class="crown">
+            <div class="companion-portrait">
+              <span class="growth-ring" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <circle class="ring-track" cx="50" cy="50" r="45" />
+                  <circle
+                    class="ring-fill"
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    [attr.stroke-dashoffset]="ringOffset(identity.stageProgress)"
+                  />
+                </svg>
+              </span>
+              <app-companion
+                [type]="identity.companion"
+                [strength]="identity.stageProgress"
+                [stage]="identity.stage"
+                [size]="72"
+                [clickable]="true"
+                [action]="companionActions()[identity.id]"
+                (enlarge)="openEnlarge(identity)"
+              />
+            </div>
+            @if (identity.companionName) {
+              <span class="companion-name">{{ identity.companionName }}</span>
+            }
+            <h2 class="statement">{{ identity.statement }}</h2>
+            <div class="strength" [title]="growthTitle(identity)">
+              <span class="stage-name">{{ identity.stageName }} · {{ growthCaption(identity) }}</span>
+              <span class="strength-bar"><span class="strength-fill" [style.width.%]="identity.stageProgress"></span></span>
             </div>
           </div>
 
@@ -67,7 +79,7 @@
           } @else {
             <ul class="habit-list">
               @for (habit of identity.habits; track habit.id) {
-                <li class="habit-row">
+                <li class="habit-tile">
                   <div class="habit-top">
                     <div class="habit-info">
                       <span class="habit-name">{{ habit.name }}</span>
