@@ -1,4 +1,4 @@
-export type HabitLogStatus = 'Completed' | 'Partial' | 'Missed';
+export type HabitLogStatus = 'Completed' | 'Partial' | 'Missed' | 'Slipped';
 
 export interface HabitLog {
   id: string;

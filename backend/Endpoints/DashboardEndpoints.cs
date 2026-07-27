@@ -46,15 +46,19 @@ public static class DashboardEndpoints
                         {
                             h.Id,
                             h.Name,
+                            h.Type,
                             h.ScheduledDays,
                             h.CreatedAt,
                             Status = h.HabitLogs
                                 .Where(l => l.CompletedOn == reference)
                                 .Select(l => (HabitLogStatus?)l.Status)
                                 .FirstOrDefault(),
-                            CompletedDates = h.HabitLogs
+                            // The dates that drive this habit's streak: completions for a build
+                            // habit, slips for a break one. Only the relevant set is non-empty.
+                            MarkDates = h.HabitLogs
                                 .Where(l => l.CompletedOn >= windowStart
-                                    && l.Status == HabitLogStatus.Completed)
+                                    && ((h.Type == HabitType.Break && l.Status == HabitLogStatus.Slipped)
+                                        || (h.Type != HabitType.Break && l.Status == HabitLogStatus.Completed)))
                                 .Select(l => l.CompletedOn)
                                 .ToList(),
                         })
@@ -70,14 +74,15 @@ public static class DashboardEndpoints
                 {
                     h.Id,
                     h.Name,
+                    h.Type,
                     h.ScheduledDays,
                     h.Status,
                     CreatedOn = DateOnly.FromDateTime(h.CreatedAt),
-                    CompletedSet = (IReadOnlySet<DateOnly>)h.CompletedDates.ToHashSet(),
+                    MarkSet = (IReadOnlySet<DateOnly>)h.MarkDates.ToHashSet(),
                 }).ToList();
 
                 var growth = GrowthCalculator.Compute(
-                    habits.Select(h => new GrowthCalculator.HabitActivity(h.ScheduledDays, h.CreatedOn, h.CompletedSet)).ToList(),
+                    habits.Select(h => new GrowthCalculator.HabitActivity(h.Type, h.ScheduledDays, h.CreatedOn, h.MarkSet)).ToList(),
                     reference);
 
                 return new TodayIdentityResponse(
@@ -90,16 +95,20 @@ public static class DashboardEndpoints
                     growth.StageProgress,
                     growth.StreakDays,
                     habits
-                        // Growth is scored across every habit above; the list the user sees for
-                        // the day, though, is just the habits scheduled for that weekday and that
-                        // already existed on it.
-                        .Where(h => DayMask.Includes(h.ScheduledDays, reference.DayOfWeek)
-                            && h.CreatedOn <= reference)
+                        // Growth is scored across every habit above; the list the user sees for the
+                        // day is just the ones that already existed and are due today. Build habits
+                        // are due on their scheduled weekdays; break habits are daily by nature.
+                        .Where(h => h.CreatedOn <= reference
+                            && (h.Type == HabitType.Break
+                                || DayMask.Includes(h.ScheduledDays, reference.DayOfWeek)))
                         .Select(h => new TodayHabitResponse(
                             h.Id,
                             h.Name,
+                            h.Type,
                             DayMask.ToDays(h.ScheduledDays),
-                            StreakCalculator.CurrentStreak(h.ScheduledDays, h.CreatedOn, h.CompletedSet, reference),
+                            h.Type == HabitType.Break
+                                ? StreakCalculator.CurrentCleanStreakDays(h.CreatedOn, h.MarkSet, reference)
+                                : StreakCalculator.CurrentStreak(h.ScheduledDays, h.CreatedOn, h.MarkSet, reference),
                             h.Status))
                         .ToList());
             }).ToList();

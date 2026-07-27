@@ -1,17 +1,20 @@
 import { CompanionType } from './companion.model';
+import { HabitType } from './habit.model';
 
 export interface StatsHabit {
   id: string;
   name: string;
+  /** Build (good habit) or Break (bad habit). */
+  type: HabitType;
   /** Weekdays this habit is scheduled on, as day numbers (0 = Sunday … 6 = Saturday). */
   scheduledDays: number[];
-  /** Consecutive completed scheduled occurrences up to today. */
+  /** Build: current completed-occurrence streak. Break: current clean-day streak. */
   currentStreak: number;
-  /** Best run of consecutive completed occurrences on record. */
+  /** Build: best completed-occurrence run. Break: longest clean-day run. */
   longestStreak: number;
-  /** All-time count of completed check-ins. */
+  /** Build: all-time completed check-ins. Break: all-time slips. */
   totalCompletions: number;
-  /** Percentage of due scheduled occurrences completed over the last 30 days. */
+  /** Build: completion rate over the last 30 days. Break: slip-free rate over the last 30 days. */
   completionRate: number;
 }
 

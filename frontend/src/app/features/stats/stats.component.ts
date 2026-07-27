@@ -4,7 +4,7 @@ import { CompanionComponent } from '../../shared/companion/companion.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { Habit } from '../../core/models/habit.model';
 import { Identity } from '../../core/models/identity.model';
-import { StatsIdentity } from '../../core/models/stats.model';
+import { StatsHabit, StatsIdentity } from '../../core/models/stats.model';
 import { HabitService } from '../../core/services/habit.service';
 import { IdentityService } from '../../core/services/identity.service';
 import { StatsService } from '../../core/services/stats.service';
@@ -222,6 +222,15 @@ export class StatsComponent implements OnInit {
   }
 
   // --- Display helpers (shared with the dashboard) -----------------------------------------
+
+  isBreak(habit: StatsHabit): boolean {
+    return habit.type === 'Break';
+  }
+
+  /** The meta line under a habit name: its schedule, or "Avoid daily" for a bad habit. */
+  metaLabel(habit: StatsHabit): string {
+    return this.isBreak(habit) ? 'Avoid daily' : this.scheduleLabel(habit.scheduledDays);
+  }
 
   /** A short human summary of a habit's schedule, e.g. "Daily" or "Mon · Wed · Fri". */
   scheduleLabel(scheduledDays: number[]): string {

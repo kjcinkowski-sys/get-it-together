@@ -61,6 +61,7 @@ public static class HabitEndpoints
                 Id = Guid.NewGuid(),
                 IdentityId = identityId,
                 Name = request.Name.Trim(),
+                Type = request.Type,
                 ScheduledDays = ResolveScheduledDays(request.ScheduledDays),
                 CreatedAt = DateTime.UtcNow,
             };
@@ -82,6 +83,7 @@ public static class HabitEndpoints
             if (habit is null) return Results.NotFound();
 
             habit.Name = request.Name.Trim();
+            habit.Type = request.Type;
             habit.ScheduledDays = ResolveScheduledDays(request.ScheduledDays);
             await db.SaveChangesAsync();
 
@@ -142,6 +144,7 @@ public static class HabitEndpoints
         habit.Id,
         habit.IdentityId,
         habit.Name,
+        habit.Type,
         DayMask.ToDays(habit.ScheduledDays),
         habit.IsArchived,
         habit.CreatedAt);

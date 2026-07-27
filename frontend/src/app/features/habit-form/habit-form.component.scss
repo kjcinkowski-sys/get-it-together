@@ -1,5 +1,46 @@
 /* Shared form layout styles live in src/styles.scss (.form-page, .form-card, .actions). */
 
+.type-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.type-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.type-option:hover {
+  border-color: var(--accent);
+}
+
+.type-option.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.type-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.type-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
 .day-picker {
   display: flex;
   flex-wrap: wrap;

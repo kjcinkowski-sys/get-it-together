@@ -5,6 +5,7 @@ namespace IdentityHabits.Api.Dtos;
 public record TodayHabitResponse(
     Guid Id,
     string Name,
+    HabitType Type,
     IReadOnlyList<int> ScheduledDays,
     int CurrentStreak,
     HabitLogStatus? Status);

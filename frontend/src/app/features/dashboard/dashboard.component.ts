@@ -2,9 +2,10 @@ import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
 import { CompanionAction, CompanionComponent } from '../../shared/companion/companion.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
-import { TodayIdentity } from '../../core/models/dashboard.model';
+import { TodayHabit, TodayIdentity } from '../../core/models/dashboard.model';
 import { HabitLogStatus } from '../../core/models/habit-log.model';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { HabitLogService } from '../../core/services/habit-log.service';
@@ -51,7 +52,10 @@ export class DashboardComponent implements OnInit {
   readonly canGoForward = computed(() => this.selectedDate() < this.today);
   readonly dateLabel = computed(() => this.labelFor(this.selectedDate()));
 
+  /** Check-in options for a build (good) habit. */
   readonly statuses: HabitLogStatus[] = ['Completed', 'Partial', 'Missed'];
+  /** Check-in options for a break (bad) habit. */
+  readonly breakOutcomes = ['Success', 'Slip'] as const;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -120,15 +124,10 @@ export class DashboardComponent implements OnInit {
 
     this.habitLogService.checkIn(habitId, this.selectedDate(), status).subscribe({
       next: () => {
-        this.identities.update((identities) =>
-          identities.map((identity) => ({
-            ...identity,
-            habits: identity.habits.map((habit) =>
-              habit.id === habitId ? { ...habit, status } : habit,
-            ),
-          })),
-        );
-        this.reactToCheckIn(habitId, status);
+        this.applyStatus(habitId, status);
+        const kind: CompanionAction['kind'] | null =
+          status === 'Completed' ? 'cheer' : status === 'Missed' ? 'frown' : null;
+        this.reactToCheckIn(habitId, kind);
         this.pendingHabitId.set(null);
       },
       error: () => {
@@ -138,10 +137,50 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  /** Cheer when a habit is completed, frown when it's missed. */
-  private reactToCheckIn(habitId: string, status: HabitLogStatus): void {
-    const kind: CompanionAction['kind'] | null =
-      status === 'Completed' ? 'cheer' : status === 'Missed' ? 'frown' : null;
+  /**
+   * Check in a break (bad) habit. "Success" clears the day — a clean day carries no log — while
+   * "Slip" records one. A slip resets the visible clean streak and makes the companion frown;
+   * staying clean makes it cheer.
+   */
+  checkInBreak(habitId: string, outcome: (typeof this.breakOutcomes)[number]): void {
+    if (!this.isToday()) return;
+
+    const slipped = outcome === 'Slip';
+    this.pendingHabitId.set(habitId);
+
+    const request$: Observable<unknown> = slipped
+      ? this.habitLogService.checkIn(habitId, this.selectedDate(), 'Slipped')
+      : this.habitLogService.clear(habitId, this.selectedDate());
+
+    request$.subscribe({
+      next: () => {
+        this.applyStatus(habitId, slipped ? 'Slipped' : null, slipped ? 0 : undefined);
+        this.reactToCheckIn(habitId, slipped ? 'frown' : 'cheer');
+        this.pendingHabitId.set(null);
+      },
+      error: () => {
+        this.pendingHabitId.set(null);
+        this.errorMessage.set('Could not save that check-in. Please try again.');
+      },
+    });
+  }
+
+  /** Patch a habit's status (and optionally its streak) in place after a successful check-in. */
+  private applyStatus(habitId: string, status: HabitLogStatus | null, currentStreak?: number): void {
+    this.identities.update((identities) =>
+      identities.map((identity) => ({
+        ...identity,
+        habits: identity.habits.map((habit) =>
+          habit.id === habitId
+            ? { ...habit, status, ...(currentStreak !== undefined ? { currentStreak } : {}) }
+            : habit,
+        ),
+      })),
+    );
+  }
+
+  /** Play a one-shot companion animation on the identity that owns the given habit. */
+  private reactToCheckIn(habitId: string, kind: CompanionAction['kind'] | null): void {
     if (!kind) return;
 
     const owner = this.identities().find((i) => i.habits.some((h) => h.id === habitId));
@@ -260,6 +299,28 @@ export class DashboardComponent implements OnInit {
     const streak = identity.streakDays === 1 ? '1-day streak' : `${identity.streakDays}-day streak`;
     if (identity.stage >= 4) return `${streak} · fully grown`;
     return `${streak} · ${identity.stageProgress}% to the next stage`;
+  }
+
+  isBreak(habit: TodayHabit): boolean {
+    return habit.type === 'Break';
+  }
+
+  /** The meta line under a habit name: its schedule, or "Avoid daily" for a bad habit. */
+  metaLabel(habit: TodayHabit): string {
+    return this.isBreak(habit) ? 'Avoid daily' : this.scheduleLabel(habit.scheduledDays);
+  }
+
+  /** Streak badge icon: a flame for build streaks, a shield for clean (break) streaks. */
+  streakIcon(habit: TodayHabit): string {
+    return this.isBreak(habit) ? '🛡️' : '🔥';
+  }
+
+  /** Tooltip for the streak badge, phrased for the habit type. */
+  streakTitle(habit: TodayHabit): string {
+    if (this.isBreak(habit)) {
+      return habit.currentStreak === 1 ? '1 day clean' : `${habit.currentStreak} days clean`;
+    }
+    return `${habit.currentStreak} in a row`;
   }
 
   /** A short human summary of a habit's schedule, e.g. "Daily" or "Mon · Wed · Fri". */

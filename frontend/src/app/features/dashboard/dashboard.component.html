@@ -84,10 +84,10 @@
                     <div class="habit-info">
                       <span class="habit-name">{{ habit.name }}</span>
                       <span class="habit-meta">
-                        {{ scheduleLabel(habit.scheduledDays) }}
+                        {{ metaLabel(habit) }}
                         @if (habit.currentStreak > 0) {
-                          <span class="streak-badge" [title]="habit.currentStreak + ' in a row'">
-                            🔥 {{ habit.currentStreak }}
+                          <span class="streak-badge" [class.streak-clean]="isBreak(habit)" [title]="streakTitle(habit)">
+                            {{ streakIcon(habit) }} {{ habit.currentStreak }}
                           </span>
                         }
                       </span>
@@ -102,20 +102,37 @@
                     </button>
                   </div>
 
-                  <div class="status-buttons">
-                    @for (status of statuses; track status) {
-                      <button
-                        type="button"
-                        class="status-btn"
-                        [class.active]="habit.status === status"
-                        [ngClass]="'status-' + status.toLowerCase()"
-                        [disabled]="pendingHabitId() === habit.id || !isToday()"
-                        (click)="checkIn(habit.id, status)"
-                      >
-                        {{ status }}
-                      </button>
-                    }
-                  </div>
+                  @if (isBreak(habit)) {
+                    <div class="status-buttons">
+                      @for (outcome of breakOutcomes; track outcome) {
+                        <button
+                          type="button"
+                          class="status-btn"
+                          [class.active]="outcome === 'Slip' ? habit.status === 'Slipped' : habit.status !== 'Slipped'"
+                          [ngClass]="'status-' + outcome.toLowerCase()"
+                          [disabled]="pendingHabitId() === habit.id || !isToday()"
+                          (click)="checkInBreak(habit.id, outcome)"
+                        >
+                          {{ outcome }}
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <div class="status-buttons">
+                      @for (status of statuses; track status) {
+                        <button
+                          type="button"
+                          class="status-btn"
+                          [class.active]="habit.status === status"
+                          [ngClass]="'status-' + status.toLowerCase()"
+                          [disabled]="pendingHabitId() === habit.id || !isToday()"
+                          (click)="checkIn(habit.id, status)"
+                        >
+                          {{ status }}
+                        </button>
+                      }
+                    </div>
+                  }
                 </li>
               }
             </ul>

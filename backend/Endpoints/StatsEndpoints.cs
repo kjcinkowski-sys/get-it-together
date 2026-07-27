@@ -39,12 +39,18 @@ public static class StatsEndpoints
                         {
                             h.Id,
                             h.Name,
+                            h.Type,
                             h.ScheduledDays,
                             h.CreatedAt,
-                            TotalCompletions = h.HabitLogs.Count(l => l.Status == HabitLogStatus.Completed),
-                            CompletedDates = h.HabitLogs
+                            // For a build habit this is the all-time completion count; for a break
+                            // habit it's the all-time slip count.
+                            TotalMarks = h.HabitLogs.Count(l =>
+                                (h.Type == HabitType.Break && l.Status == HabitLogStatus.Slipped)
+                                || (h.Type != HabitType.Break && l.Status == HabitLogStatus.Completed)),
+                            MarkDates = h.HabitLogs
                                 .Where(l => l.CompletedOn >= windowStart
-                                    && l.Status == HabitLogStatus.Completed)
+                                    && ((h.Type == HabitType.Break && l.Status == HabitLogStatus.Slipped)
+                                        || (h.Type != HabitType.Break && l.Status == HabitLogStatus.Completed)))
                                 .Select(l => l.CompletedOn)
                                 .ToList(),
                         })
@@ -58,14 +64,15 @@ public static class StatsEndpoints
                 {
                     h.Id,
                     h.Name,
+                    h.Type,
                     h.ScheduledDays,
-                    h.TotalCompletions,
+                    h.TotalMarks,
                     CreatedOn = DateOnly.FromDateTime(h.CreatedAt),
-                    CompletedSet = (IReadOnlySet<DateOnly>)h.CompletedDates.ToHashSet(),
+                    MarkSet = (IReadOnlySet<DateOnly>)h.MarkDates.ToHashSet(),
                 }).ToList();
 
                 var growth = GrowthCalculator.Compute(
-                    habits.Select(h => new GrowthCalculator.HabitActivity(h.ScheduledDays, h.CreatedOn, h.CompletedSet)).ToList(),
+                    habits.Select(h => new GrowthCalculator.HabitActivity(h.Type, h.ScheduledDays, h.CreatedOn, h.MarkSet)).ToList(),
                     today);
 
                 return new StatsIdentityResponse(
@@ -76,14 +83,25 @@ public static class StatsEndpoints
                     growth.StageName,
                     growth.StageProgress,
                     growth.StreakDays,
-                    habits.Select(h => new StatsHabitResponse(
-                        h.Id,
-                        h.Name,
-                        DayMask.ToDays(h.ScheduledDays),
-                        StreakCalculator.CurrentStreak(h.ScheduledDays, h.CreatedOn, h.CompletedSet, today),
-                        StreakCalculator.LongestStreak(h.ScheduledDays, h.CreatedOn, h.CompletedSet, today),
-                        h.TotalCompletions,
-                        CompletionRate(h.ScheduledDays, h.CreatedOn, h.CompletedSet, today)))
+                    habits.Select(h => h.Type == HabitType.Break
+                        ? new StatsHabitResponse(
+                            h.Id,
+                            h.Name,
+                            h.Type,
+                            DayMask.ToDays(h.ScheduledDays),
+                            StreakCalculator.CurrentCleanStreakDays(h.CreatedOn, h.MarkSet, today),
+                            StreakCalculator.LongestCleanStreak(h.CreatedOn, h.MarkSet, today),
+                            h.TotalMarks, // total slips
+                            SlipFreeRate(h.CreatedOn, h.MarkSet, today))
+                        : new StatsHabitResponse(
+                            h.Id,
+                            h.Name,
+                            h.Type,
+                            DayMask.ToDays(h.ScheduledDays),
+                            StreakCalculator.CurrentStreak(h.ScheduledDays, h.CreatedOn, h.MarkSet, today),
+                            StreakCalculator.LongestStreak(h.ScheduledDays, h.CreatedOn, h.MarkSet, today),
+                            h.TotalMarks, // total completions
+                            CompletionRate(h.ScheduledDays, h.CreatedOn, h.MarkSet, today)))
                         .ToList());
             }).ToList();
 
@@ -120,5 +138,36 @@ public static class StatsEndpoints
         }
 
         return due == 0 ? 0 : (int)Math.Round(done / (double)due * 100);
+    }
+
+    /// <summary>
+    /// Percentage of days in the trailing window (since the habit was created) that stayed clean —
+    /// no slip logged. Today is excluded (it may still be pending). Returns 100 when there were no
+    /// days to judge yet, matching the "silence is success" default.
+    /// </summary>
+    private static int SlipFreeRate(
+        DateOnly createdOn,
+        IReadOnlySet<DateOnly> slipDates,
+        DateOnly today)
+    {
+        var windowStart = today.AddDays(-(CompletionRateWindowDays - 1));
+        int days = 0;
+        int clean = 0;
+
+        for (var day = windowStart; day < today; day = day.AddDays(1))
+        {
+            if (day < createdOn)
+            {
+                continue;
+            }
+
+            days++;
+            if (!slipDates.Contains(day))
+            {
+                clean++;
+            }
+        }
+
+        return days == 0 ? 100 : (int)Math.Round(clean / (double)days * 100);
     }
 }

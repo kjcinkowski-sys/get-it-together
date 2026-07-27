@@ -46,7 +46,12 @@
                   <div class="habit-stat-head">
                     <div class="habit-title">
                       <span class="habit-name">{{ habit.name }}</span>
-                      <span class="habit-meta">{{ scheduleLabel(habit.scheduledDays) }}</span>
+                      <span class="habit-meta">
+                        {{ metaLabel(habit) }}
+                        @if (isBreak(habit)) {
+                          <span class="type-tag">Breaking</span>
+                        }
+                      </span>
                     </div>
                     <div class="habit-actions">
                       <a
@@ -65,20 +70,20 @@
                   </div>
                   <div class="stat-grid">
                     <div class="stat">
-                      <span class="stat-value">🔥 {{ habit.currentStreak }}</span>
-                      <span class="stat-label">Current streak</span>
+                      <span class="stat-value">{{ isBreak(habit) ? '🛡️' : '🔥' }} {{ habit.currentStreak }}</span>
+                      <span class="stat-label">{{ isBreak(habit) ? 'Days clean' : 'Current streak' }}</span>
                     </div>
                     <div class="stat">
                       <span class="stat-value">{{ habit.longestStreak }}</span>
-                      <span class="stat-label">Longest streak</span>
+                      <span class="stat-label">{{ isBreak(habit) ? 'Longest clean run' : 'Longest streak' }}</span>
                     </div>
                     <div class="stat">
                       <span class="stat-value">{{ habit.completionRate }}%</span>
-                      <span class="stat-label">Last 30 days</span>
+                      <span class="stat-label">{{ isBreak(habit) ? 'Slip-free (30d)' : 'Last 30 days' }}</span>
                     </div>
                     <div class="stat">
                       <span class="stat-value">{{ habit.totalCompletions }}</span>
-                      <span class="stat-label">Total done</span>
+                      <span class="stat-label">{{ isBreak(habit) ? 'Total slips' : 'Total done' }}</span>
                     </div>
                   </div>
                 </li>

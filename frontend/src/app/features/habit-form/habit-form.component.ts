@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HabitType } from '../../core/models/habit.model';
 import { HabitService } from '../../core/services/habit.service';
 
 /** Weekday options for scheduling, keyed by JS day number (0 = Sunday … 6 = Saturday). */
@@ -33,10 +34,17 @@ export class HabitFormComponent {
 
   readonly weekdays = WEEKDAYS;
 
+  /** Build a good habit, or break a bad one. Break habits are daily by nature (no scheduler). */
+  readonly habitType = signal<HabitType>('Build');
+  readonly isBreak = computed(() => this.habitType() === 'Break');
+
   /** Selected weekdays; starts with every day selected (overwritten when editing). */
   readonly selectedDays = signal<ReadonlySet<number>>(new Set(WEEKDAYS.map((d) => d.value)));
   readonly hasDaySelected = computed(() => this.selectedDays().size > 0);
   readonly allDaysSelected = computed(() => this.selectedDays().size === WEEKDAYS.length);
+
+  /** Day selection only gates a build habit; break habits are every-day and skip the picker. */
+  readonly scheduleValid = computed(() => this.isBreak() || this.hasDaySelected());
 
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -55,6 +63,7 @@ export class HabitFormComponent {
       this.habitService.get(this.habitId).subscribe({
         next: (habit) => {
           this.form.patchValue({ name: habit.name });
+          this.habitType.set(habit.type);
           this.selectedDays.set(new Set(habit.scheduledDays));
           this.loading.set(false);
         },
@@ -64,6 +73,10 @@ export class HabitFormComponent {
         },
       });
     }
+  }
+
+  setType(type: HabitType): void {
+    this.habitType.set(type);
   }
 
   isDaySelected(day: number): boolean {
@@ -88,17 +101,21 @@ export class HabitFormComponent {
   }
 
   submit(): void {
-    if (this.form.invalid || !this.hasDaySelected() || this.submitting()) return;
+    if (this.form.invalid || !this.scheduleValid() || this.submitting()) return;
 
     this.submitting.set(true);
     this.errorMessage.set(null);
 
     const { name } = this.form.getRawValue();
-    const scheduledDays = this.weekdays.map((d) => d.value).filter((d) => this.selectedDays().has(d));
+    const type = this.habitType();
+    // Break habits are every-day, so send the full week (the backend ignores their schedule).
+    const scheduledDays = this.isBreak()
+      ? this.weekdays.map((d) => d.value)
+      : this.weekdays.map((d) => d.value).filter((d) => this.selectedDays().has(d));
 
     const request$ = this.habitId
-      ? this.habitService.update(this.habitId, name, scheduledDays)
-      : this.habitService.create(this.identityId, name, scheduledDays);
+      ? this.habitService.update(this.habitId, name, scheduledDays, type)
+      : this.habitService.create(this.identityId, name, scheduledDays, type);
 
     request$.subscribe({
       next: () => this.router.navigate([this.returnLink]),

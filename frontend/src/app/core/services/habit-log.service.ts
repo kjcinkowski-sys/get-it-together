@@ -17,6 +17,11 @@ export class HabitLogService {
     });
   }
 
+  /** Clears any check-in for the given day. Used by break habits: a clean day carries no log. */
+  clear(habitId: string, date: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/habits/${habitId}/logs/${date}`);
+  }
+
   history(habitId: string, from?: string, to?: string): Observable<HabitLog[]> {
     const params: Record<string, string> = {};
     if (from) params['from'] = from;

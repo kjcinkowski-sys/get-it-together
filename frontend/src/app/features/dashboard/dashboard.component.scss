@@ -296,6 +296,19 @@
   color: var(--danger-ink);
 }
 
+// Break (bad) habit outcomes: staying clean is good, a slip is not.
+.status-btn.active.status-success {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.status-btn.active.status-slip {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--danger-ink);
+}
+
 .identity-footer {
   display: flex;
   align-items: center;

@@ -74,6 +74,25 @@ Content-Type: application/json
   "scheduledDays": [1, 3, 5]
 }
 
+### Create a bad habit to break (tracked every day; "type": "Break")
+POST {{IdentityHabits.Api_HostAddress}}/api/identities/{{createIdentity.response.body.id}}/habits
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "name": "No late-night snacking",
+  "type": "Break"
+}
+
+### Log a slip on the bad habit (a clean day carries no log — just DELETE to mark it clean)
+PUT {{IdentityHabits.Api_HostAddress}}/api/habits/{{createHabit.response.body.id}}/logs/2026-07-27
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "status": "Slipped"
+}
+
 ### Today's dashboard
 GET {{IdentityHabits.Api_HostAddress}}/api/dashboard/today
 Authorization: Bearer {{login.response.body.token}}
