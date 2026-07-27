@@ -7,7 +7,7 @@ export type ResolvedTheme = 'light' | 'dark';
 const STORAGE_KEY = 'git-theme';
 const THEME_COLORS: Record<ResolvedTheme, string> = {
   light: '#f3f5f4',
-  dark: '#0f1512',
+  dark: '#0c1013',
 };
 
 /**
