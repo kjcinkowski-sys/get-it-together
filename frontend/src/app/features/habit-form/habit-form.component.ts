@@ -27,10 +27,13 @@ export class HabitFormComponent {
   private readonly router = inject(Router);
 
   private readonly identityId = this.route.snapshot.paramMap.get('identityId')!;
+  /** Present only on the edit route; drives edit-vs-create behaviour. */
+  private readonly habitId = this.route.snapshot.paramMap.get('habitId');
+  readonly isEdit = this.habitId !== null;
 
   readonly weekdays = WEEKDAYS;
 
-  /** Selected weekdays; starts with every day selected. */
+  /** Selected weekdays; starts with every day selected (overwritten when editing). */
   readonly selectedDays = signal<ReadonlySet<number>>(new Set(WEEKDAYS.map((d) => d.value)));
   readonly hasDaySelected = computed(() => this.selectedDays().size > 0);
   readonly allDaysSelected = computed(() => this.selectedDays().size === WEEKDAYS.length);
@@ -39,8 +42,29 @@ export class HabitFormComponent {
     name: ['', Validators.required],
   });
 
+  /** While an existing habit is being fetched for editing. */
+  readonly loading = signal(this.isEdit);
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
+
+  /** Where Cancel and a successful save return to. */
+  readonly returnLink = this.isEdit ? '/habits' : '/';
+
+  constructor() {
+    if (this.habitId) {
+      this.habitService.get(this.habitId).subscribe({
+        next: (habit) => {
+          this.form.patchValue({ name: habit.name });
+          this.selectedDays.set(new Set(habit.scheduledDays));
+          this.loading.set(false);
+        },
+        error: () => {
+          this.errorMessage.set('Could not load that habit. Please go back and try again.');
+          this.loading.set(false);
+        },
+      });
+    }
+  }
 
   isDaySelected(day: number): boolean {
     return this.selectedDays().has(day);
@@ -72,11 +96,19 @@ export class HabitFormComponent {
     const { name } = this.form.getRawValue();
     const scheduledDays = this.weekdays.map((d) => d.value).filter((d) => this.selectedDays().has(d));
 
-    this.habitService.create(this.identityId, name, scheduledDays).subscribe({
-      next: () => this.router.navigate(['/']),
+    const request$ = this.habitId
+      ? this.habitService.update(this.habitId, name, scheduledDays)
+      : this.habitService.create(this.identityId, name, scheduledDays);
+
+    request$.subscribe({
+      next: () => this.router.navigate([this.returnLink]),
       error: () => {
         this.submitting.set(false);
-        this.errorMessage.set('Could not create that habit. Please try again.');
+        this.errorMessage.set(
+          this.isEdit
+            ? 'Could not save those changes. Please try again.'
+            : 'Could not create that habit. Please try again.',
+        );
       },
     });
   }

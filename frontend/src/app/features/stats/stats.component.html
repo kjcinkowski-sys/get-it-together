@@ -1,5 +1,5 @@
 <header class="page-header">
-  <h1>My stats</h1>
+  <h1>My Habits</h1>
 </header>
 
 <main class="stats">
@@ -10,9 +10,9 @@
       <p class="error-text">{{ errorMessage() }}</p>
     }
 
-    @if (identities().length === 0) {
+    @if (identities().length === 0 && archivedIdentities().length === 0) {
       <div class="empty-state card">
-        <p>No stats yet — add an identity and a habit to start tracking.</p>
+        <p>No habits yet — add an identity and a habit to start tracking.</p>
         <a routerLink="/identities/new" class="btn">Add your first identity</a>
       </div>
     } @else {
@@ -44,8 +44,24 @@
               @for (habit of identity.habits; track habit.id) {
                 <li class="habit-stat-row">
                   <div class="habit-stat-head">
-                    <span class="habit-name">{{ habit.name }}</span>
-                    <span class="habit-meta">{{ scheduleLabel(habit.scheduledDays) }}</span>
+                    <div class="habit-title">
+                      <span class="habit-name">{{ habit.name }}</span>
+                      <span class="habit-meta">{{ scheduleLabel(habit.scheduledDays) }}</span>
+                    </div>
+                    <div class="habit-actions">
+                      <a
+                        [routerLink]="['/identities', identity.id, 'habits', habit.id, 'edit']"
+                        class="row-action"
+                      >
+                        Edit
+                      </a>
+                      <button type="button" class="row-action" (click)="askArchiveHabit(habit)">
+                        Archive
+                      </button>
+                      <button type="button" class="row-action row-action--danger" (click)="askDeleteHabit(habit)">
+                        Delete
+                      </button>
+                    </div>
                   </div>
                   <div class="stat-grid">
                     <div class="stat">
@@ -69,8 +85,105 @@
               }
             </ul>
           }
+
+          <div class="identity-footer">
+            <button type="button" class="archived-toggle" (click)="toggleArchivedHabits(identity.id)">
+              {{ isArchivedOpen(identity.id) ? 'Hide archived' : 'Show archived' }}
+            </button>
+            <div class="identity-manage">
+              <button type="button" class="row-action" (click)="askArchiveIdentity(identity)">
+                Archive identity
+              </button>
+              <button type="button" class="row-action row-action--danger" (click)="askDeleteIdentity(identity)">
+                Delete identity
+              </button>
+            </div>
+          </div>
+
+          @if (isArchivedOpen(identity.id)) {
+            <div class="archived-panel">
+              @if (archivedHabitsFor(identity.id); as archived) {
+                @if (archived.length === 0) {
+                  <p class="muted archived-empty">No archived habits.</p>
+                } @else {
+                  <ul class="archived-list">
+                    @for (habit of archived; track habit.id) {
+                      <li class="archived-row">
+                        <div class="archived-info">
+                          <span class="habit-name">{{ habit.name }}</span>
+                          <span class="habit-meta">{{ scheduleLabel(habit.scheduledDays) }}</span>
+                        </div>
+                        <div class="habit-actions">
+                          <button type="button" class="row-action" (click)="restoreHabit(habit.id)">
+                            Restore
+                          </button>
+                          <button
+                            type="button"
+                            class="row-action row-action--danger"
+                            (click)="askDeleteHabit(habit)"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                }
+              } @else {
+                <p class="muted archived-empty">Loading…</p>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      @if (archivedIdentities().length > 0) {
+        <section class="archived-identities card">
+          <button
+            type="button"
+            class="archived-toggle archived-identities__toggle"
+            (click)="showArchivedIdentities.set(!showArchivedIdentities())"
+          >
+            {{ showArchivedIdentities() ? 'Hide archived identities' : 'Archived identities (' + archivedIdentities().length + ')' }}
+          </button>
+
+          @if (showArchivedIdentities()) {
+            <ul class="archived-list">
+              @for (identity of archivedIdentities(); track identity.id) {
+                <li class="archived-row">
+                  <div class="archived-info">
+                    <span class="habit-name">{{ identity.statement }}</span>
+                  </div>
+                  <div class="habit-actions">
+                    <button type="button" class="row-action" (click)="restoreIdentity(identity.id)">
+                      Restore
+                    </button>
+                    <button
+                      type="button"
+                      class="row-action row-action--danger"
+                      (click)="askDeleteIdentity({ id: identity.id, statement: identity.statement })"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
         </section>
       }
     }
   }
 </main>
+
+@if (pendingConfirm()) {
+  <app-confirm-dialog
+    [title]="confirmTitle()"
+    [message]="confirmMessage()"
+    [confirmLabel]="confirmLabel()"
+    [danger]="isDangerConfirm()"
+    [busy]="confirmBusy()"
+    (confirm)="confirmAction()"
+    (cancel)="cancelConfirm()"
+  />
+}

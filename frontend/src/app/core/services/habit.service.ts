@@ -14,6 +14,14 @@ export class HabitService {
     return this.http.get<Habit[]>(`${this.baseUrl}/identities/${identityId}/habits`);
   }
 
+  listArchived(identityId: string): Observable<Habit[]> {
+    return this.http.get<Habit[]>(`${this.baseUrl}/identities/${identityId}/habits/archived`);
+  }
+
+  get(id: string): Observable<Habit> {
+    return this.http.get<Habit>(`${this.baseUrl}/habits/${id}`);
+  }
+
   create(identityId: string, name: string, scheduledDays: number[]): Observable<Habit> {
     return this.http.post<Habit>(`${this.baseUrl}/identities/${identityId}/habits`, {
       name,
@@ -27,5 +35,14 @@ export class HabitService {
 
   archive(id: string): Observable<void> {
     return this.http.patch<void>(`${this.baseUrl}/habits/${id}/archive`, {});
+  }
+
+  restore(id: string): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/habits/${id}/restore`, {});
+  }
+
+  /** Permanent hard delete — the habit and its logs are gone for good. */
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/habits/${id}`);
   }
 }

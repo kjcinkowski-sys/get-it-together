@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CompanionAction, CompanionComponent } from '../../shared/companion/companion.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { TodayIdentity } from '../../core/models/dashboard.model';
 import { HabitLogStatus } from '../../core/models/habit-log.model';
 import { DashboardService } from '../../core/services/dashboard.service';
@@ -11,9 +12,17 @@ import { HabitService } from '../../core/services/habit.service';
 import { IdentityService } from '../../core/services/identity.service';
 import { addDays, isIsoDate, todayIso } from '../../core/util/date.util';
 
+/** A pending archive action awaiting confirmation. The dashboard only archives (never deletes). */
+interface ArchiveConfirm {
+  kind: 'archive-habit' | 'archive-identity';
+  id: string;
+  /** Habit or identity name, shown in the confirmation copy. */
+  name: string;
+}
+
 @Component({
   selector: 'app-dashboard',
-  imports: [NgClass, FormsModule, RouterLink, CompanionComponent],
+  imports: [NgClass, FormsModule, RouterLink, CompanionComponent, ConfirmDialogComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -175,18 +184,60 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  archiveHabit(habitId: string): void {
-    this.habitService.archive(habitId).subscribe({
-      next: () => this.load(),
-      error: () => this.errorMessage.set('Could not archive that habit.'),
+  // --- Archive with confirmation. Permanent deletion lives on the My Habits screen only. ---
+
+  readonly pendingConfirm = signal<ArchiveConfirm | null>(null);
+  readonly confirmBusy = signal(false);
+
+  askArchiveHabit(habit: { id: string; name: string }): void {
+    this.pendingConfirm.set({ kind: 'archive-habit', id: habit.id, name: habit.name });
+  }
+
+  askArchiveIdentity(identity: { id: string; statement: string }): void {
+    this.pendingConfirm.set({ kind: 'archive-identity', id: identity.id, name: identity.statement });
+  }
+
+  cancelConfirm(): void {
+    if (this.confirmBusy()) return;
+    this.pendingConfirm.set(null);
+  }
+
+  confirmArchive(): void {
+    const action = this.pendingConfirm();
+    if (!action || this.confirmBusy()) return;
+
+    this.confirmBusy.set(true);
+    const request$ =
+      action.kind === 'archive-habit'
+        ? this.habitService.archive(action.id)
+        : this.identityService.archive(action.id);
+
+    request$.subscribe({
+      next: () => {
+        this.confirmBusy.set(false);
+        this.pendingConfirm.set(null);
+        this.load();
+      },
+      error: () => {
+        this.confirmBusy.set(false);
+        this.pendingConfirm.set(null);
+        this.errorMessage.set('Could not archive that. Please try again.');
+      },
     });
   }
 
-  archiveIdentity(identityId: string): void {
-    this.identityService.archive(identityId).subscribe({
-      next: () => this.load(),
-      error: () => this.errorMessage.set('Could not archive that identity.'),
-    });
+  confirmTitle(): string {
+    return this.pendingConfirm()?.kind === 'archive-identity'
+      ? 'Archive this identity?'
+      : 'Archive this habit?';
+  }
+
+  confirmMessage(): string {
+    const action = this.pendingConfirm();
+    if (!action) return '';
+    return action.kind === 'archive-identity'
+      ? `“${action.name}” will be hidden from your day. You can restore or permanently delete it from My Habits.`
+      : `“${action.name}” will be hidden from your day. You can restore or permanently delete it from My Habits.`;
   }
 
   /**

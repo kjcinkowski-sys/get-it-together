@@ -96,7 +96,7 @@
                       type="button"
                       class="habit-archive"
                       aria-label="Archive habit"
-                      (click)="archiveHabit(habit.id)"
+                      (click)="askArchiveHabit(habit)"
                     >
                       ✕
                     </button>
@@ -125,7 +125,7 @@
             <a [routerLink]="['/identities', identity.id, 'habits', 'new']" class="btn btn-secondary">
               + Habit
             </a>
-            <button type="button" class="btn btn-ghost" (click)="archiveIdentity(identity.id)">Archive</button>
+            <button type="button" class="btn btn-ghost" (click)="askArchiveIdentity(identity)">Archive</button>
           </div>
         </section>
       }
@@ -179,4 +179,15 @@
       <p class="modal-hint">Tap the companion to see it react.</p>
     </div>
   </div>
+}
+
+@if (pendingConfirm()) {
+  <app-confirm-dialog
+    [title]="confirmTitle()"
+    [message]="confirmMessage()"
+    confirmLabel="Archive"
+    [busy]="confirmBusy()"
+    (confirm)="confirmArchive()"
+    (cancel)="cancelConfirm()"
+  />
 }

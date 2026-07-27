@@ -31,7 +31,7 @@ export const routes: Routes = [
           import('./features/calendar/calendar.component').then((m) => m.CalendarComponent),
       },
       {
-        path: 'stats',
+        path: 'habits',
         loadComponent: () => import('./features/stats/stats.component').then((m) => m.StatsComponent),
       },
       {
@@ -41,6 +41,11 @@ export const routes: Routes = [
       },
       {
         path: 'identities/:identityId/habits/new',
+        loadComponent: () =>
+          import('./features/habit-form/habit-form.component').then((m) => m.HabitFormComponent),
+      },
+      {
+        path: 'identities/:identityId/habits/:habitId/edit',
         loadComponent: () =>
           import('./features/habit-form/habit-form.component').then((m) => m.HabitFormComponent),
       },

@@ -25,6 +25,26 @@ public static class HabitEndpoints
             return Results.Ok(habits.Select(ToResponse));
         }).RequireAuthorization().WithTags("Habits");
 
+        app.MapGet("/api/identities/{identityId:guid}/habits/archived", async (Guid identityId, ClaimsPrincipal claims, AppDbContext db) =>
+        {
+            var userId = claims.GetUserId();
+            var identityExists = await db.Identities.AnyAsync(i => i.Id == identityId && i.UserId == userId);
+            if (!identityExists) return Results.NotFound();
+
+            var habits = await db.Habits
+                .Where(h => h.IdentityId == identityId && h.IsArchived)
+                .OrderBy(h => h.CreatedAt)
+                .ToListAsync();
+
+            return Results.Ok(habits.Select(ToResponse));
+        }).RequireAuthorization().WithTags("Habits");
+
+        app.MapGet("/api/habits/{id:guid}", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>
+        {
+            var habit = await FindOwnedHabit(db, id, claims.GetUserId());
+            return habit is null ? Results.NotFound() : Results.Ok(ToResponse(habit));
+        }).RequireAuthorization().WithTags("Habits");
+
         app.MapPost("/api/identities/{identityId:guid}/habits", async (Guid identityId, CreateHabitRequest request, ClaimsPrincipal claims, AppDbContext db) =>
         {
             var userId = claims.GetUserId();
@@ -74,6 +94,29 @@ public static class HabitEndpoints
             if (habit is null) return Results.NotFound();
 
             habit.IsArchived = true;
+            await db.SaveChangesAsync();
+
+            return Results.NoContent();
+        }).RequireAuthorization().WithTags("Habits");
+
+        app.MapPatch("/api/habits/{id:guid}/restore", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>
+        {
+            var habit = await FindOwnedHabit(db, id, claims.GetUserId());
+            if (habit is null) return Results.NotFound();
+
+            habit.IsArchived = false;
+            await db.SaveChangesAsync();
+
+            return Results.NoContent();
+        }).RequireAuthorization().WithTags("Habits");
+
+        // Permanent hard delete. Cascade config (see AppDbContext) removes the habit's logs too.
+        app.MapDelete("/api/habits/{id:guid}", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>
+        {
+            var habit = await FindOwnedHabit(db, id, claims.GetUserId());
+            if (habit is null) return Results.NotFound();
+
+            db.Habits.Remove(habit);
             await db.SaveChangesAsync();
 
             return Results.NoContent();

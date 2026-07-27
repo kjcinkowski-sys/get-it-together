@@ -15,6 +15,10 @@ export class IdentityService {
     return this.http.get<Identity[]>(this.baseUrl);
   }
 
+  listArchived(): Observable<Identity[]> {
+    return this.http.get<Identity[]>(`${this.baseUrl}/archived`);
+  }
+
   create(statement: string, companion: CompanionType, companionName?: string | null): Observable<Identity> {
     return this.http.post<Identity>(this.baseUrl, { statement, companion, companionName });
   }
@@ -30,5 +34,14 @@ export class IdentityService {
 
   archive(id: string): Observable<void> {
     return this.http.patch<void>(`${this.baseUrl}/${id}/archive`, {});
+  }
+
+  restore(id: string): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/${id}/restore`, {});
+  }
+
+  /** Permanent hard delete — the identity, its habits, and their logs are gone for good. */
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

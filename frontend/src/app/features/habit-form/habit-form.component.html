@@ -1,52 +1,56 @@
 <div class="form-page">
   <div class="form-card card">
-    <p class="eyebrow">New habit</p>
-    <h1>Add a habit</h1>
+    <p class="eyebrow">{{ isEdit ? 'Edit habit' : 'New habit' }}</p>
+    <h1>{{ isEdit ? 'Edit habit' : 'Add a habit' }}</h1>
     <p class="subtitle">Small, repeatable actions that build the identity.</p>
 
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <label class="field">
-        <span>Name</span>
-        <input type="text" formControlName="name" placeholder="Run 20 minutes" />
-      </label>
+    @if (loading()) {
+      <p class="muted">Loading…</p>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <label class="field">
+          <span>Name</span>
+          <input type="text" formControlName="name" placeholder="Run 20 minutes" />
+        </label>
 
-      <div class="field">
-        <span>Days</span>
-        <div class="day-picker" role="group" aria-label="Days of the week">
-          @for (day of weekdays; track day.value) {
-            <button
-              type="button"
-              class="day-circle"
-              [class.active]="isDaySelected(day.value)"
-              [attr.aria-label]="day.name"
-              [attr.aria-pressed]="isDaySelected(day.value)"
-              (click)="toggleDay(day.value)"
-            >
-              {{ day.letter }}
-            </button>
+        <div class="field">
+          <span>Days</span>
+          <div class="day-picker" role="group" aria-label="Days of the week">
+            @for (day of weekdays; track day.value) {
+              <button
+                type="button"
+                class="day-circle"
+                [class.active]="isDaySelected(day.value)"
+                [attr.aria-label]="day.name"
+                [attr.aria-pressed]="isDaySelected(day.value)"
+                (click)="toggleDay(day.value)"
+              >
+                {{ day.letter }}
+              </button>
+            }
+          </div>
+
+          <label class="daily-toggle">
+            <input type="checkbox" [checked]="allDaysSelected()" (change)="toggleDaily()" />
+            <span>Daily</span>
+          </label>
+
+          @if (!hasDaySelected()) {
+            <span class="field-hint error-text">Pick at least one day.</span>
           }
         </div>
 
-        <label class="daily-toggle">
-          <input type="checkbox" [checked]="allDaysSelected()" (change)="toggleDaily()" />
-          <span>Daily</span>
-        </label>
-
-        @if (!hasDaySelected()) {
-          <span class="field-hint error-text">Pick at least one day.</span>
+        @if (errorMessage()) {
+          <p class="error-text">{{ errorMessage() }}</p>
         }
-      </div>
 
-      @if (errorMessage()) {
-        <p class="error-text">{{ errorMessage() }}</p>
-      }
-
-      <div class="actions">
-        <a routerLink="/" class="btn btn-secondary">Cancel</a>
-        <button type="submit" class="btn" [disabled]="form.invalid || !hasDaySelected() || submitting()">
-          {{ submitting() ? 'Saving…' : 'Create habit' }}
-        </button>
-      </div>
-    </form>
+        <div class="actions">
+          <a [routerLink]="returnLink" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn" [disabled]="form.invalid || !hasDaySelected() || submitting()">
+            {{ submitting() ? 'Saving…' : isEdit ? 'Save changes' : 'Create habit' }}
+          </button>
+        </div>
+      </form>
+    }
   </div>
 </div>

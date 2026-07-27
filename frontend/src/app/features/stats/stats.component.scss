@@ -111,10 +111,17 @@
 
 .habit-stat-head {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 0.6rem;
+}
+
+.habit-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
 }
 
 .habit-name {
@@ -155,6 +162,119 @@
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+
+// Small inline row actions (Edit / Archive / Delete / Restore).
+.habit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex: none;
+}
+
+.row-action {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.row-action:hover {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.row-action--danger {
+  color: var(--danger);
+}
+
+.row-action--danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.identity-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+
+.identity-manage {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.archived-toggle {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.archived-toggle:hover {
+  text-decoration: underline;
+}
+
+.archived-panel {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--line);
+}
+
+.archived-empty {
+  font-size: 0.85rem;
+}
+
+.archived-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.archived-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.archived-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.archived-info .habit-name {
+  color: var(--muted);
+}
+
+.archived-identities {
+  padding: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.archived-identities__toggle {
+  display: block;
 }
 
 @media (max-width: 460px) {

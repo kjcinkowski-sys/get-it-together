@@ -25,6 +25,18 @@ public static class IdentityEndpoints
             return Results.Ok(identities);
         });
 
+        group.MapGet("/archived", async (ClaimsPrincipal claims, AppDbContext db) =>
+        {
+            var userId = claims.GetUserId();
+            var identities = await db.Identities
+                .Where(i => i.UserId == userId && i.IsArchived)
+                .OrderBy(i => i.CreatedAt)
+                .Select(i => new IdentityResponse(i.Id, i.Statement, i.Companion, i.CompanionName, i.IsArchived, i.CreatedAt))
+                .ToListAsync();
+
+            return Results.Ok(identities);
+        });
+
         group.MapPost("/", async (CreateIdentityRequest request, ClaimsPrincipal claims, AppDbContext db) =>
         {
             if (string.IsNullOrWhiteSpace(request.Statement))
@@ -84,6 +96,30 @@ public static class IdentityEndpoints
             if (identity is null) return Results.NotFound();
 
             identity.IsArchived = true;
+            await db.SaveChangesAsync();
+
+            return Results.NoContent();
+        });
+
+        group.MapPatch("/{id:guid}/restore", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>
+        {
+            var identity = await FindOwnedIdentity(db, id, claims.GetUserId());
+            if (identity is null) return Results.NotFound();
+
+            identity.IsArchived = false;
+            await db.SaveChangesAsync();
+
+            return Results.NoContent();
+        });
+
+        // Permanent hard delete. Cascade config (see AppDbContext) removes the identity's habits
+        // and their logs too.
+        group.MapDelete("/{id:guid}", async (Guid id, ClaimsPrincipal claims, AppDbContext db) =>
+        {
+            var identity = await FindOwnedIdentity(db, id, claims.GetUserId());
+            if (identity is null) return Results.NotFound();
+
+            db.Identities.Remove(identity);
             await db.SaveChangesAsync();
 
             return Results.NoContent();
