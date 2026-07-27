@@ -126,23 +126,24 @@ public static class StreakCalculator
     // build habit's day-streak feeds.
 
     /// <summary>
-    /// The current run of consecutive clean days for a break habit: calendar days counted back
-    /// from today until the most recent slip. Days with no log count as clean, so a fresh clean
-    /// day (or a brand-new habit) is a 1-day streak. A slip today makes it 0; a past slip ends it
-    /// there. Bounded below by the day the habit was created.
+    /// The current run of consecutive clean days for a break habit: full days with no slip, counted
+    /// back from yesterday until the most recent slip. Today is still in progress, so it doesn't
+    /// count yet — a brand-new habit sits at a 0-day streak until its first full clean day passes
+    /// (mirroring how a build habit doesn't count a pending today). A slip logged today still breaks
+    /// the run to 0. Bounded below by the day the habit was created.
     /// </summary>
     public static int CurrentCleanStreakDays(
         DateOnly createdOn,
         IReadOnlySet<DateOnly> slipDates,
         DateOnly today)
     {
-        if (today < createdOn)
+        if (today < createdOn || slipDates.Contains(today))
         {
             return 0;
         }
 
         int streak = 0;
-        for (var day = today; day >= createdOn; day = day.AddDays(-1))
+        for (var day = today.AddDays(-1); day >= createdOn; day = day.AddDays(-1))
         {
             if (slipDates.Contains(day))
             {
@@ -156,8 +157,9 @@ public static class StreakCalculator
     }
 
     /// <summary>
-    /// The longest run of consecutive clean days on record for a break habit, from its creation
-    /// date through today.
+    /// The longest run of consecutive clean days on record for a break habit. Counts only completed
+    /// days (creation date through yesterday); today is still pending, matching the current-streak
+    /// measure above.
     /// </summary>
     public static int LongestCleanStreak(
         DateOnly createdOn,
@@ -167,7 +169,7 @@ public static class StreakCalculator
         int best = 0;
         int current = 0;
 
-        for (var day = createdOn; day <= today; day = day.AddDays(1))
+        for (var day = createdOn; day < today; day = day.AddDays(1))
         {
             if (slipDates.Contains(day))
             {
