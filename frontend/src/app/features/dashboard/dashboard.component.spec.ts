@@ -17,11 +17,39 @@ function identityWith(status: HabitLogStatus | null): TodayIdentity[] {
       id: 'i1',
       statement: 'I am a runner',
       companion: 'Sprite',
+      companionName: null,
       stage: 1,
       stageName: 'Spark',
       stageProgress: 50,
       streakDays: 3,
-      habits: [{ id: 'h1', name: 'Run', scheduledDays: [1, 3, 5], currentStreak: 2, status: status }],
+      habits: [
+        { id: 'h1', name: 'Run', type: 'Build', scheduledDays: [1, 3, 5], currentStreak: 2, status },
+      ],
+    },
+  ];
+}
+
+function breakIdentityWith(status: HabitLogStatus | null): TodayIdentity[] {
+  return [
+    {
+      id: 'i2',
+      statement: 'I am in control',
+      companion: 'Sprite',
+      companionName: null,
+      stage: 1,
+      stageName: 'Spark',
+      stageProgress: 50,
+      streakDays: 5,
+      habits: [
+        {
+          id: 'b1',
+          name: 'No late-night snacking',
+          type: 'Break',
+          scheduledDays: [0, 1, 2, 3, 4, 5, 6],
+          currentStreak: 5,
+          status,
+        },
+      ],
     },
   ];
 }
@@ -29,9 +57,11 @@ function identityWith(status: HabitLogStatus | null): TodayIdentity[] {
 describe('DashboardComponent check-in', () => {
   let component: DashboardComponent;
   let checkInSpy: jasmine.Spy;
+  let clearSpy: jasmine.Spy;
 
   beforeEach(async () => {
     checkInSpy = jasmine.createSpy('checkIn').and.returnValue(of({}));
+    clearSpy = jasmine.createSpy('clear').and.returnValue(of(void 0));
 
     await TestBed.configureTestingModule({
       imports: [DashboardComponent],
@@ -39,7 +69,7 @@ describe('DashboardComponent check-in', () => {
         provideRouter([]),
         provideHttpClient(),
         { provide: DashboardService, useValue: { forDate: () => of([]) } },
-        { provide: HabitLogService, useValue: { checkIn: checkInSpy } },
+        { provide: HabitLogService, useValue: { checkIn: checkInSpy, clear: clearSpy } },
         { provide: HabitService, useValue: { archive: () => of(void 0) } },
         { provide: IdentityService, useValue: { archive: () => of(void 0) } },
         { provide: AuthService, useValue: { currentUser: () => null, logout: () => {} } },
@@ -71,5 +101,21 @@ describe('DashboardComponent check-in', () => {
     component.checkIn('h1', 'Missed');
     expect(component.identities()[0].habits[0].status).toBe('Completed');
     expect(component.errorMessage()).toBeTruthy();
+  });
+
+  it('records a break-habit slip as a "Slipped" log and resets the clean streak', () => {
+    component.identities.set(breakIdentityWith(null));
+    component.checkInBreak('b1', 'Slip');
+    expect(checkInSpy).toHaveBeenCalledWith('b1', component.today, 'Slipped');
+    expect(component.identities()[0].habits[0].status).toBe('Slipped');
+    expect(component.identities()[0].habits[0].currentStreak).toBe(0);
+  });
+
+  it('clears the day (no log) when a break habit is marked a success', () => {
+    component.identities.set(breakIdentityWith('Slipped'));
+    component.checkInBreak('b1', 'Success');
+    expect(clearSpy).toHaveBeenCalledWith('b1', component.today);
+    expect(checkInSpy).not.toHaveBeenCalled();
+    expect(component.identities()[0].habits[0].status).toBeNull();
   });
 });

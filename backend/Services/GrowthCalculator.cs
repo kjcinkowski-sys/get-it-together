@@ -1,3 +1,5 @@
+using IdentityHabits.Api.Models;
+
 namespace IdentityHabits.Api.Services;
 
 /// <summary>
@@ -24,11 +26,15 @@ public static class GrowthCalculator
     /// <summary>The highest stage index a companion can reach.</summary>
     public static int MaxStage => StageThresholdDays.Length;
 
-    /// <summary>One habit's schedule and completion history, decoupled from EF.</summary>
+    /// <summary>
+    /// One habit's schedule and history, decoupled from EF. <paramref name="Marks"/> holds the
+    /// dates that drive the streak: completion dates for a build habit, slip dates for a break one.
+    /// </summary>
     public record HabitActivity(
+        HabitType Type,
         int ScheduledDaysMask,
         DateOnly CreatedOn,
-        IReadOnlySet<DateOnly> CompletedDates);
+        IReadOnlySet<DateOnly> Marks);
 
     public record Growth(int StreakDays, int Stage, string StageName, int StageProgress);
 
@@ -36,8 +42,9 @@ public static class GrowthCalculator
     {
         int streakDays = habits.Count == 0
             ? 0
-            : habits.Max(h => StreakCalculator.CurrentStreakDays(
-                h.ScheduledDaysMask, h.CreatedOn, h.CompletedDates, today));
+            : habits.Max(h => h.Type == HabitType.Break
+                ? StreakCalculator.CurrentCleanStreakDays(h.CreatedOn, h.Marks, today)
+                : StreakCalculator.CurrentStreakDays(h.ScheduledDaysMask, h.CreatedOn, h.Marks, today));
 
         int stage = 0;
         foreach (var threshold in StageThresholdDays)

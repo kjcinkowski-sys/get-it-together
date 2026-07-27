@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Habit } from '../models/habit.model';
+import { Habit, HabitType } from '../models/habit.model';
 
 @Injectable({ providedIn: 'root' })
 export class HabitService {
@@ -22,15 +22,26 @@ export class HabitService {
     return this.http.get<Habit>(`${this.baseUrl}/habits/${id}`);
   }
 
-  create(identityId: string, name: string, scheduledDays: number[]): Observable<Habit> {
+  create(
+    identityId: string,
+    name: string,
+    scheduledDays: number[],
+    type: HabitType = 'Build',
+  ): Observable<Habit> {
     return this.http.post<Habit>(`${this.baseUrl}/identities/${identityId}/habits`, {
       name,
       scheduledDays,
+      type,
     });
   }
 
-  update(id: string, name: string, scheduledDays: number[]): Observable<Habit> {
-    return this.http.put<Habit>(`${this.baseUrl}/habits/${id}`, { name, scheduledDays });
+  update(
+    id: string,
+    name: string,
+    scheduledDays: number[],
+    type: HabitType = 'Build',
+  ): Observable<Habit> {
+    return this.http.put<Habit>(`${this.baseUrl}/habits/${id}`, { name, scheduledDays, type });
   }
 
   archive(id: string): Observable<void> {

@@ -1,14 +1,20 @@
 import { CompanionType } from './companion.model';
 import { HabitLogStatus } from './habit-log.model';
+import { HabitType } from './habit.model';
 
 export interface TodayHabit {
   id: string;
   name: string;
+  /** Build (good habit) or Break (bad habit). */
+  type: HabitType;
   /** Weekdays this habit is scheduled on, as day numbers (0 = Sunday … 6 = Saturday). */
   scheduledDays: number[];
-  /** Consecutive completed scheduled occurrences up to the viewed day. */
+  /**
+   * For a build habit, consecutive completed scheduled occurrences up to the viewed day.
+   * For a break habit, the number of clean days (no slip) up to the viewed day.
+   */
   currentStreak: number;
-  /** The habit's check-in status on the viewed day, if any. */
+  /** The habit's check-in status on the viewed day, if any. `Slipped` marks a break-habit slip. */
   status: HabitLogStatus | null;
 }
 

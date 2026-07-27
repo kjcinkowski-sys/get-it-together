@@ -2,43 +2,83 @@
   <div class="form-card card">
     <p class="eyebrow">{{ isEdit ? 'Edit habit' : 'New habit' }}</p>
     <h1>{{ isEdit ? 'Edit habit' : 'Add a habit' }}</h1>
-    <p class="subtitle">Small, repeatable actions that build the identity.</p>
+    <p class="subtitle">
+      {{
+        isBreak()
+          ? 'A bad habit to break — every clean day keeps the streak alive.'
+          : 'Small, repeatable actions that build the identity.'
+      }}
+    </p>
 
     @if (loading()) {
       <p class="muted">Loading…</p>
     } @else {
       <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <span>Type</span>
+          <div class="type-toggle" role="group" aria-label="Habit type">
+            <button
+              type="button"
+              class="type-option"
+              [class.active]="!isBreak()"
+              [attr.aria-pressed]="!isBreak()"
+              (click)="setType('Build')"
+            >
+              <span class="type-title">Build a habit</span>
+              <span class="type-hint">Do it — check in when done</span>
+            </button>
+            <button
+              type="button"
+              class="type-option"
+              [class.active]="isBreak()"
+              [attr.aria-pressed]="isBreak()"
+              (click)="setType('Break')"
+            >
+              <span class="type-title">Break a habit</span>
+              <span class="type-hint">Avoid it — log only when you slip</span>
+            </button>
+          </div>
+        </div>
+
         <label class="field">
           <span>Name</span>
-          <input type="text" formControlName="name" placeholder="Run 20 minutes" />
+          <input
+            type="text"
+            formControlName="name"
+            [placeholder]="isBreak() ? 'No late-night snacking' : 'Run 20 minutes'"
+          />
         </label>
 
-        <div class="field">
-          <span>Days</span>
-          <div class="day-picker" role="group" aria-label="Days of the week">
-            @for (day of weekdays; track day.value) {
-              <button
-                type="button"
-                class="day-circle"
-                [class.active]="isDaySelected(day.value)"
-                [attr.aria-label]="day.name"
-                [attr.aria-pressed]="isDaySelected(day.value)"
-                (click)="toggleDay(day.value)"
-              >
-                {{ day.letter }}
-              </button>
+        @if (!isBreak()) {
+          <div class="field">
+            <span>Days</span>
+            <div class="day-picker" role="group" aria-label="Days of the week">
+              @for (day of weekdays; track day.value) {
+                <button
+                  type="button"
+                  class="day-circle"
+                  [class.active]="isDaySelected(day.value)"
+                  [attr.aria-label]="day.name"
+                  [attr.aria-pressed]="isDaySelected(day.value)"
+                  (click)="toggleDay(day.value)"
+                >
+                  {{ day.letter }}
+                </button>
+              }
+            </div>
+
+            <label class="daily-toggle">
+              <input type="checkbox" [checked]="allDaysSelected()" (change)="toggleDaily()" />
+              <span>Daily</span>
+            </label>
+
+            @if (!hasDaySelected()) {
+              <span class="field-hint error-text">Pick at least one day.</span>
             }
           </div>
-
-          <label class="daily-toggle">
-            <input type="checkbox" [checked]="allDaysSelected()" (change)="toggleDaily()" />
-            <span>Daily</span>
-          </label>
-
-          @if (!hasDaySelected()) {
-            <span class="field-hint error-text">Pick at least one day.</span>
-          }
-        </div>
+        } @else {
+          <p class="field-hint muted">Bad habits are tracked every day — no schedule needed.</p>
+        }
 
         @if (errorMessage()) {
           <p class="error-text">{{ errorMessage() }}</p>
@@ -46,7 +86,7 @@
 
         <div class="actions">
           <a [routerLink]="returnLink" class="btn btn-secondary">Cancel</a>
-          <button type="submit" class="btn" [disabled]="form.invalid || !hasDaySelected() || submitting()">
+          <button type="submit" class="btn" [disabled]="form.invalid || !scheduleValid() || submitting()">
             {{ submitting() ? 'Saving…' : isEdit ? 'Save changes' : 'Create habit' }}
           </button>
         </div>

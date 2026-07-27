@@ -5,6 +5,7 @@ namespace IdentityHabits.Api.Dtos;
 public record StatsHabitResponse(
     Guid Id,
     string Name,
+    HabitType Type,
     IReadOnlyList<int> ScheduledDays,
     int CurrentStreak,
     int LongestStreak,

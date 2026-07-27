@@ -134,6 +134,15 @@
   color: var(--faint);
 }
 
+.type-tag {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-weight: 600;
+}
+
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

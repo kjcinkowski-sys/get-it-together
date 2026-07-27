@@ -117,4 +117,69 @@ public static class StreakCalculator
 
         return firstInRun is null ? 0 : today.DayNumber - firstInRun.Value.DayNumber + 1;
     }
+
+    // --- Break (bad) habits ---------------------------------------------------------------------
+    //
+    // A break habit inverts the rules above. Every calendar day counts (you can slip any day, not
+    // just scheduled ones) and a day is clean unless a slip was logged for it — silence is success.
+    // The streak is measured in calendar days, so it drops straight into the same growth math a
+    // build habit's day-streak feeds.
+
+    /// <summary>
+    /// The current run of consecutive clean days for a break habit: calendar days counted back
+    /// from today until the most recent slip. Days with no log count as clean, so a fresh clean
+    /// day (or a brand-new habit) is a 1-day streak. A slip today makes it 0; a past slip ends it
+    /// there. Bounded below by the day the habit was created.
+    /// </summary>
+    public static int CurrentCleanStreakDays(
+        DateOnly createdOn,
+        IReadOnlySet<DateOnly> slipDates,
+        DateOnly today)
+    {
+        if (today < createdOn)
+        {
+            return 0;
+        }
+
+        int streak = 0;
+        for (var day = today; day >= createdOn; day = day.AddDays(-1))
+        {
+            if (slipDates.Contains(day))
+            {
+                break; // a slip ends the clean run
+            }
+
+            streak++;
+        }
+
+        return streak;
+    }
+
+    /// <summary>
+    /// The longest run of consecutive clean days on record for a break habit, from its creation
+    /// date through today.
+    /// </summary>
+    public static int LongestCleanStreak(
+        DateOnly createdOn,
+        IReadOnlySet<DateOnly> slipDates,
+        DateOnly today)
+    {
+        int best = 0;
+        int current = 0;
+
+        for (var day = createdOn; day <= today; day = day.AddDays(1))
+        {
+            if (slipDates.Contains(day))
+            {
+                current = 0;
+            }
+            else
+            {
+                current++;
+                best = Math.Max(best, current);
+            }
+        }
+
+        return best;
+    }
 }
